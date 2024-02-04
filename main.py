@@ -39,8 +39,6 @@ request_list = [
 ]
 
 
-
-
 def convert_datetime(datetime_str):
     datetime_object = datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
     return datetime_object
