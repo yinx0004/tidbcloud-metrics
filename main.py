@@ -15,8 +15,8 @@ step_in_seconds = 60
 
 # Auth
 
-id_token = "xxxxxxxx-xxxx-xxxx"
-cluster_prom_base_url = "https://"
+#id_token = "xxxxxxxx-xxxx-xxxx"
+#cluster_prom_base_url = "https://"
 
 # User Input Area Ends here.
 
@@ -59,7 +59,6 @@ def get_metrics(prom, request, step=step_in_seconds):
     res = prom.get_metric_aggregation(
         query=request['query'],
         start_time=start_time_datetime, end_time=end_time_datetime, step=step, operations=["max", "average", "percentile_50", "percentile_75", "percentile_99", "percentile_99.9"])
-    #return res['max'], res['average'], res['percentile_50.0'], res['percentile_75.0'], res['percentile_99.0'], res['percentile_99.9']
     return res
 
 def dict_to_csv(dict_var, file_name):
