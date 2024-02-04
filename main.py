@@ -15,8 +15,9 @@ step_in_seconds = 60
 
 # Auth
 
-#id_token = "xxxxxxxx-xxxx-xxxx"
-#cluster_prom_base_url = "https://"
+id_token = "xxxxxxxx-xxxx-xxxx"
+cluster_prom_base_url = "https://"
+
 
 # User Input Area Ends here.
 
@@ -33,7 +34,8 @@ request_list = [
     {'component': 'pd', 'name': "CPU(core)", 'query': 'irate(process_cpu_seconds_total{component=~".*pd.*"}[2m])', 'step': '2m'},
     {'component': 'pd', 'name': "Memory(byte)", 'query': 'process_resident_memory_bytes{component=~".*pd.*"}', 'step': '2m'},
     {'component': 'tiflash', 'name': "CPU(core)", 'query': 'rate(tiflash_proxy_process_cpu_seconds_total{component="tiflash"}[2m])'},
-    {'component': 'tiflash', 'name': "Memory(byte)", 'query': 'tiflash_proxy_process_resident_memory_bytes{component="tiflash"}'}
+    {'component': 'tiflash', 'name': "Memory(byte)", 'query': 'tiflash_proxy_process_resident_memory_bytes{component="tiflash"}'},
+    {'component': 'tiflash', 'name': "Storage(byte)", 'query': 'sum(tiflash_system_current_metric_StoreSizeUsed) by (instance)'},
 ]
 
 
