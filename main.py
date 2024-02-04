@@ -5,7 +5,7 @@ import csv
 
 
 # User Input Area
-# Define start and end time DD-MM-YYYY HH:MM:SS
+# Define start and end time dd-mm-YYYY HH:MM:SS
 
 start_time = '01/02/2024 00:00:00'
 end_time = '02/02/2024 23:59:59'
@@ -39,6 +39,8 @@ request_list = [
 ]
 
 
+
+
 def convert_datetime(datetime_str):
     datetime_object = datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
     return datetime_object
@@ -62,6 +64,7 @@ def get_metrics(prom, request, step=step_in_seconds):
         query=request['query'],
         start_time=start_time_datetime, end_time=end_time_datetime, step=step, operations=["max", "average", "percentile_50", "percentile_75", "percentile_99", "percentile_99.9"])
     return res
+
 
 def dict_to_csv(dict_var, file_name):
     fields = ['component', 'name', 'max', 'average', 'percentile_50.0', 'percentile_75.0', 'percentile_99.0', 'percentile_99.9']
