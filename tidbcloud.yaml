@@ -1,0 +1,16 @@
+logging:
+  level: info
+  to_file: true
+
+prometheus:
+  start_time: 06/02/2024 00:00:00
+  end_time: 07/02/2024 23:59:59
+  step_in_seconds: 60s
+  cluster_prom_base_url:
+  cluster_prom_id_token:
+  k8s_prom_base_url:
+
+capacity:
+  plan_traffic_x: 2
+  plan_resource_redundancy_x: 2
+  plan_cpu_usage_goal: 10
