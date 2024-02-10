@@ -1,36 +1,12 @@
-from prometheus_api_client import PrometheusConnect
 from datetime import datetime
-import sys
-import csv
+from utils import logger, helpers
+from utils.configer import Configer
+from capacity_planner.prometheus_client import PrometheusClient
+from capacity_planner.metrics_analyzer import MetricsAnalyzer
 
 
-# User Input Area
-# Define start and end time dd-mm-YYYY HH:MM:SS
-
-start_time = '06/02/2024 00:00:00'
-end_time = '07/02/2024 23:59:59'
-
-# Prometheus datapoint interval
-step_in_seconds = 60
-
-# Auth
-
-id_token = "xxxxxxxx-xxxx-xxxx"
-cluster_prom_base_url = "https://"
-
-# capacity plan variables
-
-plan_traffic_x = 2
-plan_resource_redundancy_x = 2
-
-# User Input Area Ends here.
-
-now = datetime.now()
-date_time = now.strftime("%Y-%m-%d-%H-%M-%S")
-
-cluster_id = cluster_prom_base_url.split("/")[-1]
-
-csv_file_name = "{}_capacity_plan_{}.csv".format(cluster_id, date_time)
+# consts
+csv_fields = ['component', 'name', 'max', 'average', 'percentile_50.0', 'percentile_75.0', "percentile_80.0", "percentile_85.0", "percentile_90.0", "percentile_95.0", 'percentile_99.0', 'percentile_99.9', 'capacity', 'instance_cnt', 'plan_max', 'plan_average', 'plan_percentile_50.0', 'plan_percentile_75.0', 'plan_percentile_80.0', 'plan_percentile_85.0', 'plan_percentile_90.0', 'plan_percentile_95.0', 'plan_percentile_99.0', 'plan_percentile_99.9']
 
 # Add 'step' key for customized interval
 requests = [
@@ -47,42 +23,6 @@ requests = [
 ]
 
 
-def convert_datetime(datetime_str):
-    datetime_object = datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
-    return datetime_object
-
-
-def connect_to_prometheus():
-    prom = PrometheusConnect(url=cluster_prom_base_url, disable_ssl=False,
-                             headers={"Authorization": "bearer {}".format(id_token)})
-
-    if len(prom.all_metrics()) == 0:
-        print("Connect to prometheus failed.")
-        sys.exit(0)
-    else:
-        return prom
-
-
-def get_metrics(prom, request, step=step_in_seconds):
-    if 'step' in request.keys():
-        step = request['step']
-    res = prom.get_metric_aggregation(
-        query=request['query_metric'],
-        start_time=start_time_datetime, end_time=end_time_datetime, step=step, operations=["max", "average", "percentile_50", "percentile_75", "percentile_80", "percentile_85", "percentile_90", "percentile_95", "percentile_99", "percentile_99.9"])
-    return res
-
-
-def get_capacity_n_count(prom, request):
-    res = prom.custom_query(request['query_capacity'])
-    if res is not None:
-        instance_cnt = len(res)
-        value = res[0]['value']
-        capacity = value[1]
-        return capacity, instance_cnt
-    else:
-        return None, None
-
-
 def get_capacity_plan(aggregations, plan_traffic_x, plan_resource_redundancy_x, instance_cnt, capacity):
     plan = {}
     for k, v in aggregations.items():
@@ -91,56 +31,37 @@ def get_capacity_plan(aggregations, plan_traffic_x, plan_resource_redundancy_x, 
     return plan
 
 
-def write_to_csv(dict_var, file_name):
-    fields = ['component', 'name', 'max', 'average', 'percentile_50.0', 'percentile_75.0', "percentile_80.0", "percentile_85.0", "percentile_90.0", "percentile_95.0", 'percentile_99.0', 'percentile_99.9', 'capacity', 'instance_cnt', 'plan_max', 'plan_average', 'plan_percentile_50.0', 'plan_percentile_75.0', 'plan_percentile_80.0', 'plan_percentile_85.0', 'plan_percentile_90.0', 'plan_percentile_95.0', 'plan_percentile_99.0', 'plan_percentile_99.9']
-    with open(file_name, "w") as f:
-        w = csv.DictWriter(f, fields)
-        w.writeheader()
-        w.writerows(dict_var)
-
-
 if __name__ == '__main__':
-    prom = connect_to_prometheus()
-    metrics = []
+    now = datetime.now()
+    date_time_str = now.strftime("%Y-%m-%d-%H-%M-%S")
 
-    # Convert time to datetime
+    # get configurations
+    conf = Configer("tidbcloud.yaml", now).set_conf()
 
-    start_time_datetime = convert_datetime(start_time)
-    end_time_datetime = convert_datetime(end_time)
+    cluster_id = conf['prometheus_cluster_prom_base_url'].split("/")[-1]
 
-    # Get metrics, capacity, number of instance for each component
+    csv_file_name = "data/{}_capacity_plan_{}.csv".format(cluster_id, date_time_str)
+
+    # setup logging
+    if conf['log_to_file']:
+        conf['log_file_name'] = "logs/{}_{}.log".format(cluster_id, date_time_str)
+
+    logger = logger.setup_logger(__name__, conf['log_file_name'], conf['log_level'])
+    logger.debug("test")
+
+    client = PrometheusClient(conf['prometheus_cluster_prom_base_url'], conf['prometheus_cluster_prom_id_token'], conf['prometheus_start_time'], conf['prometheus_end_time'], conf['prometheus_step_in_seconds'], conf['log_file_name'], conf['log_level'])
+
+    dataset = []
 
     for request in requests:
-        print("{} {}:".format(request['component'], request['name']))
-        print("  Retrieving metrics")
-        values = get_metrics(prom, request)
-        if values is not None:
-            metric = {"component": "{}".format(request['component']),
-                     "name": "{}".format(request['name']),
-                     "max": "{}".format(values['max']), "average": "{}".format(values['average']),
-                     "percentile_50.0": "{}".format(values['percentile_50.0']),
-                     "percentile_75.0": "{}".format(values['percentile_75.0']),
-                     "percentile_80.0": "{}".format(values['percentile_80.0']),
-                     "percentile_85.0": "{}".format(values['percentile_85.0']),
-                     "percentile_90.0": "{}".format(values['percentile_90.0']),
-                     "percentile_95.0": "{}".format(values['percentile_95.0']),
-                     "percentile_99.0": "{}".format(values['percentile_99.0']),
-                     "percentile_99.9": "{}".format(values['percentile_99.9']), }
+        logger.info("{} {}: Retrieving resource usage metrics".format(request['component'], request['name']))
+        usage_metrics = client.get_resource_usage_metrics(request)
+        logger.info("{} {}: Retrieving resource capacity".format(request['component'], request['name']))
+        capacity_metrics = client.get_resource_capacity_metrics(request)
+        analyzer = MetricsAnalyzer(request, usage_metrics, capacity_metrics, conf['capacity_plan_traffic_x'], conf['capacity_plan_resource_redundancy_x'], conf['log_file_name'], conf['log_level'])
+        logger.info("{} {}: Analyzing capacity plan".format(request['component'], request['name']))
+        data = analyzer.analyze()
+        dataset.append(data)
 
-            print("  Retrieving capacity and instance count")
-            capacity, instance_cnt = get_capacity_n_count(prom, request)
-            metric['capacity'] = capacity
-            metric['instance_cnt'] = instance_cnt
-
-            print("  Generating capacity plan")
-            plan = get_capacity_plan(values, plan_traffic_x, plan_resource_redundancy_x, instance_cnt, capacity)
-            for k, v in plan.items():
-                metric[k] = v
-
-            metrics.append(metric)
-            print("  Done.")
-
-    # Output to csv file
-
-    write_to_csv(metrics, csv_file_name)
-    print("\nCompleted. Please find the metrics in {}".format(csv_file_name))
+    helpers.write_to_csv(dataset, csv_fields, csv_file_name)
+    logger.info("Completed. Please find the capacity plan in {}".format(csv_file_name))
