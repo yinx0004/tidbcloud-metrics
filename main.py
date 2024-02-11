@@ -68,6 +68,8 @@ def cluster_prom_capacity_plan():
 
 def k8s_prom_capacity_plan(cluster_info):
     k8s_prom_region_url = "https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820"
+
+    # require office network, no authentication needed
     client = PrometheusClient(k8s_prom_region_url, conf['prometheus_start_time'], conf['prometheus_end_time'], conf['prometheus_step_in_seconds'], conf['log_file_name'], conf['log_level'])
 
     k8s_instance_query = K8sPromQueryInstance(cluster_info)
