@@ -1,5 +1,5 @@
 logging:
-  level: debug
+  level: info
   to_file: false
 
 prometheus:
@@ -7,7 +7,7 @@ prometheus:
   end_time: 07/02/2024 23:59:59
   step_in_seconds: 60s
   cluster_prom_base_url: https://xxx
-  cluster_prom_id_token: eyJhbxxx
+  cluster_prom_id_token: eyJhbGxx
 
 capacity:
   plan_traffic_x: 2
