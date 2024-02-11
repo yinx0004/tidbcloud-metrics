@@ -60,7 +60,8 @@ def cluster_prom_capacity_plan():
                                    conf['capacity_plan_resource_redundancy_x'], conf['log_file_name'], conf['log_level'])
         logger.info("{} {}: Analyzing capacity plan".format(request['component'], request['name']))
         data = analyzer.analyze()
-        dataset.append(data)
+        if data is not None:
+            dataset.append(data)
 
     return dataset
 
@@ -89,39 +90,41 @@ def k8s_prom_capacity_plan(cluster_info):
         instances = []
         instance_type_list = []
 
-        for instance in instances_info:
-            instance_name = instance['metric']['label_kubernetes_io_hostname']
-            instance_type = instance['metric']['label_node_kubernetes_io_instance_type']
-            logger.debug("instance name:{}, instance_type: {}".format(instance_name, instance_type))
-            instances.append(instance_name)
-            instance_type_list.append(instance_type)
+        if len(instances_info) > 0:
+            for instance in instances_info:
+                instance_name = instance['metric']['label_kubernetes_io_hostname']
+                instance_type = instance['metric']['label_node_kubernetes_io_instance_type']
+                logger.debug("instance name:{}, instance_type: {}".format(instance_name, instance_type))
+                instances.append(instance_name)
+                instance_type_list.append(instance_type)
 
-        instance_filter = '|'.join(instances)
-        logger.debug("instance_filter {}".format(instance_filter))
+            instance_filter = '|'.join(instances)
+            logger.debug("instance_filter {}".format(instance_filter))
 
-        k8s_component_metricx_query = K8sPromQueryBatchInstanceMetrics(cluster_info, instance_filter)
+            k8s_component_metricx_query = K8sPromQueryBatchInstanceMetrics(cluster_info, instance_filter)
 
-        k8s_component_metricx_requests = [
-            {'component': request['component'], 'name': "Disk IOPS", 'query_metric': k8s_component_metricx_query.batch_instance_disk_iops_query },
-            {'component': request['component'], 'name': "Disk Bandwidth(byte)", 'query_metric': k8s_component_metricx_query.batch_instance_disk_bandwidth_query},
-            {'component': request['component'], 'name': "NetworkIn Bandwidth(byte)", 'query_metric': k8s_component_metricx_query.batch_instance_network_received_query},
-            {'component': request['component'], 'name': "NetworkOut Bandwidth(byte)", 'query_metric': k8s_component_metricx_query.batch_instance_network_transmitted_query},
-        ]
+            k8s_component_metricx_requests = [
+                {'component': request['component'], 'name': "Disk IOPS", 'query_metric': k8s_component_metricx_query.batch_instance_disk_iops_query },
+                {'component': request['component'], 'name': "Disk Bandwidth(byte)", 'query_metric': k8s_component_metricx_query.batch_instance_disk_bandwidth_query},
+                {'component': request['component'], 'name': "NetworkIn Bandwidth(byte)", 'query_metric': k8s_component_metricx_query.batch_instance_network_received_query},
+                {'component': request['component'], 'name': "NetworkOut Bandwidth(byte)", 'query_metric': k8s_component_metricx_query.batch_instance_network_transmitted_query},
+            ]
 
-        for metrics_request in k8s_component_metricx_requests:
-            logger.info("{} {}: Retrieving  metrics".format(metrics_request['component'], metrics_request['name']))
-            usage_metrics = client.get_resource_usage_metrics(metrics_request)
-            logger.info("{} {}: Retrieving capacity".format(metrics_request['component'], metrics_request['name']))
-            instance_cnt = len(instances)
-            instance_type = instance_type_list[0]
-            name = metrics_request['name']
-            capacity = ec2_resource_capacity[instance_type][name]
-            logger.info("{} {}: Analyzing capacity plan".format(metrics_request['component'], metrics_request['name']))
-            analyzer = MetricsAnalyzer(metrics_request, usage_metrics, capacity, instance_cnt, conf['capacity_plan_traffic_x'],
-                                       conf['capacity_plan_resource_redundancy_x'], conf['log_file_name'],
-                                       conf['log_level'])
-            data = analyzer.analyze()
-            dataset.append(data)
+            for metrics_request in k8s_component_metricx_requests:
+                logger.info("{} {}: Retrieving  metrics".format(metrics_request['component'], metrics_request['name']))
+                usage_metrics = client.get_resource_usage_metrics(metrics_request)
+                logger.info("{} {}: Retrieving capacity".format(metrics_request['component'], metrics_request['name']))
+                instance_cnt = len(instances)
+                instance_type = instance_type_list[0]
+                name = metrics_request['name']
+                capacity = ec2_resource_capacity[instance_type][name]
+                logger.info("{} {}: Analyzing capacity plan".format(metrics_request['component'], metrics_request['name']))
+                analyzer = MetricsAnalyzer(metrics_request, usage_metrics, capacity, instance_cnt, conf['capacity_plan_traffic_x'],
+                                           conf['capacity_plan_resource_redundancy_x'], conf['log_file_name'],
+                                           conf['log_level'])
+                data = analyzer.analyze()
+                if data is not None:
+                    dataset.append(data)
 
     return dataset
 
@@ -165,8 +168,11 @@ if __name__ == '__main__':
     logger.debug("test")
 
     dataset_cluster_prom = cluster_prom_capacity_plan()
+    logger.debug("dataset_cluster_prom: {}".format(dataset_cluster_prom))
     dataset_k8s_prom = k8s_prom_capacity_plan(cluster_info)
+    logger.debug("dataset_k8s_prom: {}".format(dataset_k8s_prom))
     dataset = dataset_cluster_prom + dataset_k8s_prom
+    logger.debug("dataset: {}".format(dataset))
 
     helpers.write_to_csv(dataset, csv_fields, csv_file_name)
     logger.info("Completed. Please find the capacity plan in {}".format(csv_file_name))

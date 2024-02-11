@@ -43,7 +43,8 @@ class PrometheusClient:
 
     def get_capacity_n_count(self, request):
         res = self.client.custom_query(request['query_capacity'])
-        if res is not None:
+        self.logger.debug("capacity and count: {}".format(res))
+        if res is not None and len(res) > 0:
             instance_cnt = len(res)
             value = res[0]['value']
             capacity = value[1]
