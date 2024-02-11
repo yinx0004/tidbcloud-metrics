@@ -4,24 +4,28 @@ from utils import logger, helpers
 
 
 class PrometheusClient:
-    def __init__(self, base_url, start_time, end_time, step_in_seconds, log_file_name, log_level, token=None):
-        self.base_url = base_url
-        self.token = token
-        self.start_time = helpers.convert_datetime(start_time)
-        self.end_time = helpers.convert_datetime(end_time)
-        self.step = step_in_seconds
+    def __init__(self, conf, auth=True, url=None):
+        if url is None:
+            self.base_url = conf['prometheus_cluster_prom_base_url']
+        else:
+            self.base_url = url
+        self.token = conf['prometheus_cluster_prom_id_token']
+        self.start_time = helpers.convert_datetime(conf['prometheus_start_time'])
+        self.end_time = helpers.convert_datetime(conf['prometheus_end_time'])
+        self.step = conf['prometheus_step_in_seconds']
+        self.auth = auth
         self.operations = ["max", "average", "percentile_50", "percentile_75", "percentile_80", "percentile_85",
                         "percentile_90", "percentile_95", "percentile_99", "percentile_99.9"]
-        self.logger = logger.setup_logger(__name__, log_file_name, log_level)
+        self.logger = logger.setup_logger(__name__, conf['log_file_name'], conf['log_level'])
         self.client = self.connect()
 
     def connect(self):
-        if self.token is None:
-            client = PrometheusConnect(url=self.base_url, disable_ssl=False,
-                                       headers=None)
-        else:
+        if self.auth:
             client = PrometheusConnect(url=self.base_url, disable_ssl=False,
                                    headers={"Authorization": "bearer {}".format(self.token)})
+        else:
+            client = PrometheusConnect(url=self.base_url, disable_ssl=False,
+                                       headers=None)
         return client
 
     def get_resource_usage_metrics(self, request):
