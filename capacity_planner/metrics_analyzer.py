@@ -13,27 +13,20 @@ class MetricsAnalyzer:
         self.plan_resource_redundancy_x = plan_resource_redundancy_x
         self.capacity_planner = CapacityPlanner(self.resource_usage_metrics, self.plan_traffic_x, self.plan_resource_redundancy_x, log_file_name, log_level)
 
-   # def get_capacity_n_count(self):
-   #     if self.capacity_metrics is not None:
-   #         instance_cnt = len(self.capacity_metrics)
-   #         value = self.capacity_metrics[0]['value']
-   #         capacity = value[1]
-   #         return capacity, instance_cnt
-   #     else:
-   #         self.logger.debug("No metrics")
-   #         return None, None
-
     def analyze(self):
-        data = {"component": "{}".format(self.request['component']),
-                "name": "{}".format(self.request['name'])}
-        for key, value in self.resource_usage_metrics.items():
-            data[key] = value
+        if self.resource_usage_metrics is not None:
+            data = {"component": "{}".format(self.request['component']),
+                   "name": "{}".format(self.request['name'])}
 
-        data["capacity"] = self.capacity
-        data["instance_cnt"] = self.instance_cnt
+            for key, value in self.resource_usage_metrics.items():
+                data[key] = value
 
-        plan = self.capacity_planner.get_resource_capacity_plan(self.instance_cnt, self.capacity)
-        for k, v in plan.items():
-            data[k] = v
+            data["capacity"] = self.capacity
+            data["instance_cnt"] = self.instance_cnt
 
-        return data
+            plan = self.capacity_planner.get_resource_capacity_plan(self.instance_cnt, self.capacity)
+            if plan is not None:
+                for k, v in plan.items():
+                    data[k] = v
+
+            return data
