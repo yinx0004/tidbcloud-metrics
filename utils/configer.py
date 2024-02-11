@@ -53,10 +53,6 @@ class Configer:
         helpers.validate_non_empty_string(yaml_data["prometheus"]["cluster_prom_id_token"], 'prometheus.cluster_prom_id_token', allow_none=False)
         self.conf["prometheus_cluster_prom_id_token"] = yaml_data["prometheus"]["cluster_prom_id_token"]
 
-        helpers.validate_non_empty_string(yaml_data["prometheus"]["k8s_prom_base_url"], 'prometheus.prometheus_k8s_prom_base_url', allow_none=True)
-        if yaml_data["prometheus"]["k8s_prom_base_url"] is not None:
-            self.conf["prometheus_k8s_prom_base_url"] = yaml_data["prometheus"]["k8s_prom_base_url"]
-
         helpers.validate_int(yaml_data["capacity"]["plan_traffic_x"], 'capacity.plan_traffic_x', allow_none=True)
         if yaml_data["capacity"]["plan_traffic_x"] is not None:
             self.conf["capacity_plan_traffic_x"] = yaml_data["capacity"]["plan_traffic_x"]

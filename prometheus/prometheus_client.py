@@ -4,9 +4,9 @@ from utils import logger, helpers
 
 
 class PrometheusClient:
-    def __init__(self, cluster_prom_base_url, id_token, start_time, end_time, step_in_seconds, log_file_name, log_level):
-        self.base_url = cluster_prom_base_url
-        self.token = id_token
+    def __init__(self, base_url, start_time, end_time, step_in_seconds, log_file_name, log_level, token=None):
+        self.base_url = base_url
+        self.token = token
         self.start_time = helpers.convert_datetime(start_time)
         self.end_time = helpers.convert_datetime(end_time)
         self.step = step_in_seconds
@@ -16,14 +16,13 @@ class PrometheusClient:
         self.client = self.connect()
 
     def connect(self):
-        client = PrometheusConnect(url=self.base_url, disable_ssl=False,
-                                   headers={"Authorization": "bearer {}".format(self.token)})
-
-        if len(client.all_metrics()) == 0:
-            self.logger.fatal("Connect to prometheus failed.")
-            sys.exit(0)
+        if self.token is None:
+            client = PrometheusConnect(url=self.base_url, disable_ssl=False,
+                                       headers=None)
         else:
-            return client
+            client = PrometheusConnect(url=self.base_url, disable_ssl=False,
+                                   headers={"Authorization": "bearer {}".format(self.token)})
+        return client
 
     def get_resource_usage_metrics(self, request):
         if 'step' in request.keys():
@@ -52,3 +51,7 @@ class PrometheusClient:
         else:
             self.logger.debug("No metrics")
             return None, None
+
+    def get_metrics(self, query):
+        res = self.client.custom_query(query)
+        return res
