@@ -7,7 +7,7 @@ prometheus:
   end_time: 07/02/2024 23:59:59
   step_in_seconds: 60s
   cluster_prom_base_url: https://www.xxx
-  cluster_prom_id_token: eyJhbGcixxx
+  cluster_prom_id_token: eyJhbGciOiJSUz
 
 capacity:
   plan_traffic_x: 2
