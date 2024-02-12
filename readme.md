@@ -1,6 +1,39 @@
 # Function
-Run this script to get TiDBCloud Cluster Metrics, a capacity plan will be generated based on the metrics and estimated traffic increase and resource redundancy required.
+Run this command line script to get TiDBCloud Cluster Metrics
+- Capacity plan: a capacity plan will be generated based on the metrics and estimated traffic increase and resource redundancy required.
 It will be saved in a csv file.
+- Health check: a health report will be generated.
+```shell
+$ python3 main.py --help
+Usage: main.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  capacity
+  health-check
+
+$ python3 main.py capacity --help
+Welcome to TiDBCloud Capacity Planner and Health Checker!
+Usage: main.py capacity [OPTIONS]
+
+Options:
+  -m, --mode [all|node|cluster]  capacity planner mode
+  --help                         Show this message and exit.
+
+
+$ python3 main.py health-check --help
+Welcome to TiDBCloud Capacity Planner and Health Checker!
+Usage: main.py health-check [OPTIONS]
+
+Options:
+  -t, --type [all|tidb|tikv|pd|tiflash]
+                                  health check type
+  -r, --report [console]          report channel
+  --help                          Show this message and exit.
+
+```
 
 
 # Requirement
@@ -32,7 +65,8 @@ pip install pyyaml
 - step 3, goto `Application` tab, 
 - step 4, under `Local storage` -> https://tidbcloud.com
 
-# A glance of capacity plan
+# Capacity Plan
+## A glance of capacity plan
 |component|name                      |max               |average           |percentile_50.0    |percentile_75.0   |percentile_80.0   |percentile_85.0   |percentile_90.0   |percentile_95.0   |percentile_99.0   |percentile_99.9   |capacity     |instance_cnt|plan_max           |plan_average         |plan_percentile_50.0 |plan_percentile_75.0 |plan_percentile_80.0 |plan_percentile_85.0 |plan_percentile_90.0 |plan_percentile_95.0|plan_percentile_99.0|plan_percentile_99.9|
 |---------|--------------------------|------------------|------------------|-------------------|------------------|------------------|------------------|------------------|------------------|------------------|------------------|-------------|------------|-------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|--------------------|--------------------|--------------------|
 |tidb     |CPU(core)                 |23.784666666636863|6.891452040305764 |6.4966666666169965 |10.47533333338797 |11.068000000038495|11.763333333283663|12.577333333343267|13.587733333359147|15.136666666684672|16.846442666622035|32           |64          |190.2773333330949  |55.13161632244611    |51.97333333293597    |83.80266666710376    |88.54400000030796    |94.1066666662693     |100.61866666674614   |108.70186666687317  |121.09333333347737  |134.77154133297628  |
@@ -64,13 +98,63 @@ pip install pyyaml
 
 >For node level metrics require global mode office network
 
-# How to read
+## How to read
 For example, `plan_max` is the calculated number of instance needed based on `max` value  
 
-# How capacity plan is calculated 
+## How capacity plan is calculated 
 ```plan_max = max * instance_cnt * plan_traffic_x * plan_resource_redundancy_x / capacity ```
 
+# Health Check
+## Health check report sample
+```shell
+pd:
+        diagnostics:
+                '🚨 Critical: pd_tso_wait_duration_999': 0.00280602557503623
+        metrics:
+                pd_tso_wait_duration_999: 0.00280602557503623
+                store_disconnected_count: 0.0
+                store_down_count: 0.0
+                store_low_space_count: 0.0
+                store_offline_count: 0.0
+                store_slow_count: 0.0
+                store_tombstone_count: 0.0
+                store_unhealth_count: 0.0
+tidb:
+        diagnostics:
+                '⚠️ Warning: threshold missing for failed_query_opm': 0.0
+                '🚨 Critical: qps': 169871.1166666667
+        metrics:
+                failed_query_opm: 0.0
+                qps: 169871.1166666667
+                query_duration_p999: 0.015002920253115134
+tiflash:
+        diagnostics: '⚠️ Warning: tiflash threshold missing'
+        metrics: {}
+tikv:
+        diagnostics:
+                '⚠️ Warning: metric empty for tikv_channel_full_total': null
+                '⚠️ Warning: metric empty for tikv_coprocessor_request_error': null
+                '⚠️ Warning: metric empty for tikv_scheduler_too_busy_total': null
+                '🚨 Critical: kv_request_duration_99_by_store': 0.13708654709296972
+                '🚨 Critical: tikv_grpc_msg_duration_999': 0.025472
+        metrics:
+                down_peer_region_count: 0.0
+                empty_region_count: 0.0
+                extra_peer_region_count: 0.0
+                kv_request_duration_99_by_store: 0.13708654709296972
+                miss_peer_region_count: 0.0
+                offline_peer_region_count: 0.0
+                pending_peer_region_count: 0.0
+                region_count: 24811.0
+                tikv_channel_full_total: null
+                tikv_coprocessor_request_error: null
+                tikv_engine_write_stall: 0.0
+                tikv_grpc_msg_duration_999: 0.025472
+                tikv_raftstore_store_write_msg_block_wait_duration_seconds_count: 0.0
+                tikv_scheduler_too_busy_total: null
+```
 
+# Notice
 >**For On-premise deployment TiDB cluster, please download v0.1.0**
 
 
