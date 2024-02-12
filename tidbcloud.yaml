@@ -1,15 +1,49 @@
 logging:
   level: info
-  to_file: false
+  dir: logs
 
 prometheus:
   start_time: 06/02/2024 00:00:00
   end_time: 07/02/2024 23:59:59
   step_in_seconds: 60s
-  cluster_prom_base_url: https://xxx
-  cluster_prom_id_token: eyJhbGxx
+  cluster_prom_base_url: https://www.xxx
+  cluster_prom_id_token: eyJhbGcixxx
 
 capacity:
   plan_traffic_x: 2
   plan_resource_redundancy_x: 2
   plan_cpu_usage_goal: 10
+
+health:
+  threshold:
+    tidb:
+      query_duration_p999: 0.02 #unit: seconds
+      qps: 100000
+      failed_query_opm:
+    tikv:
+      miss_peer_region_count: 0
+      extra_peer_region_count: 0
+      empty_region_count: 0
+      pending_peer_region_count: 0
+      down_peer_region_count: 0
+      offline_peer_region_count: 0
+      kv_request_duration_99_by_store: 0.002
+      region_count: 50000
+      tikv_scheduler_too_busy_total: 0
+      tikv_channel_full_total: 0
+      tikv_coprocessor_request_error: 0
+      tikv_engine_write_stall: 0
+      tikv_raftstore_store_write_msg_block_wait_duration_seconds_count: 0
+      tikv_grpc_msg_duration_999: 0.02
+    pd:
+      pd_tso_wait_duration_999: 0.002
+      store_disconnected_count: 0
+      store_unhealth_count: 0
+      store_low_space_count: 0
+      store_down_count: 0
+      store_offline_count: 0
+      store_tombstone_count: 0
+      store_slow_count: 0
+
+
+

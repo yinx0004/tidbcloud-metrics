@@ -1,0 +1,78 @@
+2024-02-13 02:11:52,727 - health_checker.health_checker - INFO - Checking tidb health
+2024-02-13 02:11:54,514 - health_checker.health_analyzer - INFO - query_duration_p999 passed
+2024-02-13 02:11:54,514 - health_checker.health_analyzer - WARNING - qps: 169871.1166666667, threshold: 100000
+2024-02-13 02:11:54,514 - health_checker.health_analyzer - WARNING - threshold missing for metric failed_query_opm
+2024-02-13 02:11:54,514 - health_checker.health_checker - INFO - Checking tikv health
+2024-02-13 02:12:03,202 - health_checker.health_analyzer - INFO - miss_peer_region_count passed
+2024-02-13 02:12:03,204 - health_checker.health_analyzer - INFO - extra_peer_region_count passed
+2024-02-13 02:12:03,204 - health_checker.health_analyzer - INFO - empty_region_count passed
+2024-02-13 02:12:03,204 - health_checker.health_analyzer - INFO - pending_peer_region_count passed
+2024-02-13 02:12:03,204 - health_checker.health_analyzer - INFO - down_peer_region_count passed
+2024-02-13 02:12:03,204 - health_checker.health_analyzer - INFO - offline_peer_region_count passed
+2024-02-13 02:12:03,205 - health_checker.health_analyzer - WARNING - kv_request_duration_99_by_store: 0.13708654709296972, threshold: 0.002
+2024-02-13 02:12:03,205 - health_checker.health_analyzer - INFO - region_count passed
+2024-02-13 02:12:03,205 - health_checker.health_analyzer - INFO - tikv_engine_write_stall passed
+2024-02-13 02:12:03,205 - health_checker.health_analyzer - WARNING - metric tikv_scheduler_too_busy_total is None
+2024-02-13 02:12:03,205 - health_checker.health_analyzer - WARNING - metric tikv_channel_full_total is None
+2024-02-13 02:12:03,205 - health_checker.health_analyzer - WARNING - metric tikv_coprocessor_request_error is None
+2024-02-13 02:12:03,205 - health_checker.health_analyzer - INFO - tikv_raftstore_store_write_msg_block_wait_duration_seconds_count passed
+2024-02-13 02:12:03,206 - health_checker.health_analyzer - WARNING - tikv_grpc_msg_duration_999: 0.025472, threshold: 0.02
+2024-02-13 02:12:03,206 - health_checker.health_checker - INFO - Checking pd health
+2024-02-13 02:12:05,633 - health_checker.health_analyzer - WARNING - pd_tso_wait_duration_999: 0.00280602557503623, threshold: 0.002
+2024-02-13 02:12:05,633 - health_checker.health_analyzer - INFO - store_disconnected_count passed
+2024-02-13 02:12:05,633 - health_checker.health_analyzer - INFO - store_unhealth_count passed
+2024-02-13 02:12:05,634 - health_checker.health_analyzer - INFO - store_low_space_count passed
+2024-02-13 02:12:05,634 - health_checker.health_analyzer - INFO - store_down_count passed
+2024-02-13 02:12:05,634 - health_checker.health_analyzer - INFO - store_offline_count passed
+2024-02-13 02:12:05,634 - health_checker.health_analyzer - INFO - store_tombstone_count passed
+2024-02-13 02:12:05,634 - health_checker.health_analyzer - INFO - store_slow_count passed
+2024-02-13 02:12:05,634 - health_checker.health_checker - INFO - Checking tiflash health
+2024-02-13 02:12:05,636 - health_checker.reporter - INFO - Generating report
+2024-02-13 02:12:05,641 - health_checker.health_checker - INFO - Health Check Report:
+
+pd:
+        diagnostics:
+                '🚨 Critical: pd_tso_wait_duration_999': 0.00280602557503623
+        metrics:
+                pd_tso_wait_duration_999: 0.00280602557503623
+                store_disconnected_count: 0.0
+                store_down_count: 0.0
+                store_low_space_count: 0.0
+                store_offline_count: 0.0
+                store_slow_count: 0.0
+                store_tombstone_count: 0.0
+                store_unhealth_count: 0.0
+tidb:
+        diagnostics:
+                '⚠️ Warning: threshold missing for failed_query_opm': 0.0
+                '🚨 Critical: qps': 169871.1166666667
+        metrics:
+                failed_query_opm: 0.0
+                qps: 169871.1166666667
+                query_duration_p999: 0.015002920253115134
+tiflash:
+        diagnostics: '⚠️ Warning: tiflash threshold missing'
+        metrics: {}
+tikv:
+        diagnostics:
+                '⚠️ Warning: metric empty for tikv_channel_full_total': null
+                '⚠️ Warning: metric empty for tikv_coprocessor_request_error': null
+                '⚠️ Warning: metric empty for tikv_scheduler_too_busy_total': null
+                '🚨 Critical: kv_request_duration_99_by_store': 0.13708654709296972
+                '🚨 Critical: tikv_grpc_msg_duration_999': 0.025472
+        metrics:
+                down_peer_region_count: 0.0
+                empty_region_count: 0.0
+                extra_peer_region_count: 0.0
+                kv_request_duration_99_by_store: 0.13708654709296972
+                miss_peer_region_count: 0.0
+                offline_peer_region_count: 0.0
+                pending_peer_region_count: 0.0
+                region_count: 24811.0
+                tikv_channel_full_total: null
+                tikv_coprocessor_request_error: null
+                tikv_engine_write_stall: 0.0
+                tikv_grpc_msg_duration_999: 0.025472
+                tikv_raftstore_store_write_msg_block_wait_duration_seconds_count: 0.0
+                tikv_scheduler_too_busy_total: null
+

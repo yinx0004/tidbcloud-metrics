@@ -6,17 +6,17 @@ from utils import logger, helpers
 class PrometheusClient:
     def __init__(self, conf, auth=True, url=None):
         if url is None:
-            self.base_url = conf['prometheus_cluster_prom_base_url']
+            self.base_url = conf['prometheus']['cluster_prom_base_url']
         else:
             self.base_url = url
-        self.token = conf['prometheus_cluster_prom_id_token']
-        self.start_time = helpers.convert_datetime(conf['prometheus_start_time'])
-        self.end_time = helpers.convert_datetime(conf['prometheus_end_time'])
-        self.step = conf['prometheus_step_in_seconds']
+        self.token = conf['prometheus']['cluster_prom_id_token']
+        self.start_time = helpers.convert_datetime(conf['prometheus']['start_time'])
+        self.end_time = helpers.convert_datetime(conf['prometheus']['end_time'])
+        self.step = conf['prometheus']['step_in_seconds']
         self.auth = auth
         self.operations = ["max", "average", "percentile_50", "percentile_75", "percentile_80", "percentile_85",
                         "percentile_90", "percentile_95", "percentile_99", "percentile_99.9"]
-        self.logger = logger.setup_logger(__name__, conf['log_file_name'], conf['log_level'])
+        self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
         self.client = self.connect()
 
     def connect(self):
@@ -60,3 +60,11 @@ class PrometheusClient:
     def get_metrics(self, query):
         res = self.client.custom_query(query)
         return res
+
+    def get_vector_metrics(self, query):
+        res = self.client.custom_query(query)
+        self.logger.debug("vector metrics: {}".format(res))
+        if res is not None and len(res) > 0:
+            return float(res[0]['value'][1])
+        else:
+            return None
