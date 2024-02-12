@@ -1,39 +1,38 @@
-from datetime import datetime
-from utils import logger
+from health_checker.health_checker import HealthChecker
+from utils.logger import setup_logger
 from utils.configer import Configer
 from capacity_planner.capacity_planner import CapacityPlanner
+import click
+
+# consts
+health_check_type = ["all", "tidb", "tikv", "pd", "tiflash"]
 
 
-def get_tidb_cluster_info(prometheus_cluster_prom_base_url):
-    info = prometheus_cluster_prom_base_url.split("/")
-    cluster_info = {
-        'ds_domain': info[2],
-        'tenant_id': info[7],
-        'project_id': info[9],
-        'cluster_id': info[-1],
-    }
-    domain_info = cluster_info['ds_domain'].split('.')
-    cluster_info['region'] = domain_info[2]
-    cluster_info['cloud_provider'] = domain_info[3]
-    cluster_info['k8s_cluster'] = 'prod-{}-eks-{}-.*'.format(cluster_info['project_id'], cluster_info['region'])
+@click.group()
+def cli():
+    click.echo('Welcome to TiDBCloud Capacity Planner and Health Checker!')
 
-    return cluster_info
+
+@cli.command()
+@click.option('--mode', '-m', prompt=True, type=click.Choice(['all', 'node', 'cluster']), default='all', help='capacity planner mode')
+def capacity(mode):
+    if mode == 'all' or mode == 'node':
+        click.confirm("Have you connected to FeiLian?", abort=True)
+    capacity_planner = CapacityPlanner(conf)
+    capacity_planner.generate_capacity_plan(mode)
+
+
+@cli.command()
+@click.option('--type', '-t', prompt=True, type=click.Choice(health_check_type), default='all', help='health check type')
+@click.option('--report', '-r', prompt=True, type=click.Choice(['console']), default='console', help='report channel')
+def health_check(type, report):
+    health_checker = HealthChecker(conf, health_check_type)
+    health_checker.check_health(type, report)
 
 
 if __name__ == '__main__':
-    now = datetime.now()
-    # get configurations
-    conf = Configer("tidbcloud.yaml", now).set_conf()
-    cluster_info = get_tidb_cluster_info(conf['prometheus_cluster_prom_base_url'])
-
-    # setup logging
-    if conf['log_to_file']:
-        conf['log_file_name'] = "logs/{}_{}.log".format(cluster_info['cluster_id'], now.strftime("%Y-%m-%d-%H-%M-%S"))
-    logger = logger.setup_logger(__name__, conf['log_file_name'], conf['log_level'])
-    logger.debug("test")
-
-    capacity_planner = CapacityPlanner(conf, cluster_info, 'node')
-    capacity_planner.generate_capacity_plan()
-
+    conf = Configer("tidbcloud.yaml").set_conf()
+    logger = setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
+    cli()
 
 

@@ -1,3 +1,5 @@
+import sys
+
 from utils import logger, helpers
 from prometheus.prometheus_client import PrometheusClient
 from prometheus.k8s_prom_query import K8sPromQueryInstance, K8sPromQueryBatchInstanceMetrics
@@ -8,13 +10,10 @@ from datetime import datetime
 
 
 class CapacityPlanner:
-    def __init__(self, conf, cluster_info, mode):
+    def __init__(self, conf):
         self.conf = conf
-        self.mode = mode
-        self.cluster_info = cluster_info
-        self.time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        self.logger = logger.setup_logger(__name__, conf['log_file_name'], conf['log_level'])
-        self.csv_file_name = "data/{}_capacity_plan_{}.csv".format(cluster_info['cluster_id'], self.time)
+        self.logger = logger.setup_logger(__name__, self.conf['logging']['file_name'], self.conf['logging']['level'])
+        self.csv_file_name = "data/{}_capacity_plan_{}.csv".format(self.conf['cluster_info']['cluster_id'], self.conf['time'])
         self.csv_file_fields = ['component', 'name', 'max', 'average', 'percentile_50.0', 'percentile_75.0', "percentile_80.0",
                        "percentile_85.0", "percentile_90.0", "percentile_95.0", 'percentile_99.0', 'percentile_99.9',
                        'capacity', 'instance_cnt', 'plan_max', 'plan_average', 'plan_percentile_50.0',
@@ -72,7 +71,7 @@ class CapacityPlanner:
         # require office network, no authentication needed
         client = PrometheusClient(self.conf, False, k8s_prom_url)
 
-        k8s_instance_query = K8sPromQueryInstance(self.cluster_info)
+        k8s_instance_query = K8sPromQueryInstance(self.conf['cluster_info'])
 
         k8s_prom_instance_request = [
             {'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},
@@ -103,7 +102,7 @@ class CapacityPlanner:
                 instance_filter = '|'.join(instances)
                 self.logger.debug("instance_filter {}".format(instance_filter))
 
-                metricx_query = K8sPromQueryBatchInstanceMetrics(self.cluster_info, instance_filter)
+                metricx_query = K8sPromQueryBatchInstanceMetrics(self.conf['cluster_info'], instance_filter)
 
                 k8s_component_metricx_requests = [
                     {'component': request['component'], 'name': "Disk IOPS", 'query_metric': metricx_query.batch_instance_disk_iops_query },
@@ -128,16 +127,17 @@ class CapacityPlanner:
 
         return dataset
 
-    def generate_capacity_plan(self):
+    def generate_capacity_plan(self, mode):
         plan = []
-        if self.mode == "cluster":
+        if mode == "cluster":
             plan = self.cluster_prom_capacity_plan()
-        elif self.mode == "node":
+        elif mode == "node":
             plan = self.k8s_prom_capacity_plan()
-        elif self.mode == "all":
+        elif mode == "all":
             plan = self.cluster_prom_capacity_plan() + self.k8s_prom_capacity_plan()
         else:
-            self.logger.error("Unexpected mode: {}!".format(self.mode))
+            self.logger.error("Not supported mode: {}!".format(mode))
+            sys.exit(1)
 
         if len(plan) > 0:
             helpers.write_to_csv(plan, self.csv_file_fields, self.csv_file_name)

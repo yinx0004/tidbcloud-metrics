@@ -27,6 +27,11 @@ def parse_yaml(file):
             print(e)
 
 
+def dict_to_yaml(dict_var):
+    yaml_content = yaml.dump(dict_var, default_flow_style=False, indent=8, allow_unicode=True)
+    return yaml_content
+
+
 def validate_non_empty_string(value, name, allow_none=False):
     if value is None and allow_none:
         return
