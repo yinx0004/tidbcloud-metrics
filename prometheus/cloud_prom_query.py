@@ -40,7 +40,7 @@ health_query = {
         'pending_peer_region_count': 'pd_regions_status{type="pending-peer-region-count"}',
         'down_peer_region_count': 'pd_regions_status{type="down-peer-region-count"}',
         'offline_peer_region_count': 'pd_regions_offline_status{type="offline-peer-region-count"}',
-        'kv_request_duration_99_by_store': 'max(histogram_quantile(0.99, sum(rate(tidb_tikvclient_request_seconds_bucket{store!="0"}[2m])) by (le, store)))',
+        #'kv_request_duration_99_by_store': 'max(histogram_quantile(0.99, sum(rate(tidb_tikvclient_request_seconds_bucket{store!="0"}[2m])) by (le, store)))',
         'region_count': 'max(sum(tikv_raftstore_region_count{type="region"}) by (instance))',
         'tikv_engine_write_stall': 'max(avg(tikv_engine_write_stall{type="write_stall_percentile99"}) by (instance, db))',
         'tikv_scheduler_too_busy_total': 'max(sum(rate(tikv_scheduler_too_busy_total[2m])) by (instance))',
@@ -59,7 +59,11 @@ health_query = {
         'store_tombstone_count': 'sum(pd_cluster_status{type="store_tombstone_count"})',
         'store_slow_count': 'sum(pd_cluster_status{type="store_slow_count"})',
     },
-    'tiflash': {},
+    'tiflash': {
+        'request_duration_p999': 'histogram_quantile(0.999, sum(rate(tiflash_coprocessor_request_duration_seconds_bucket[2m])) by (le))',
+        'tiflash_raft_wait_index_duration_max': 'histogram_quantile(1.00, sum(rate(tiflash_raft_wait_index_duration_seconds_bucket[2m])) by (le))',
+        'tiflash_raft_read_index_duration_max': 'histogram_quantile(1.00, sum(rate(tiflash_raft_read_index_duration_seconds_bucket[2m])) by (le))',
+    },
     'cluster': {},
 }
 
@@ -67,6 +71,5 @@ config_query = {
     'gc': '',
 }
 
-
-
+component_query = 'count(node_memory_MemTotal_bytes) by (component)'
 

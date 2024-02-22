@@ -20,6 +20,10 @@ class Configer:
 
     def set_conf(self):
         self.conf = helpers.parse_yaml(self.config_file)
+
+        # hardcode first
+        self.conf['prometheus']['k8s_prom_base_url'] = "https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820"
+
         self.conf['time'] = self.now.strftime("%Y-%m-%d-%H-%M-%S")
         # validate auth
         helpers.validate_non_empty_string(self.conf['prometheus']['cluster_prom_base_url'],

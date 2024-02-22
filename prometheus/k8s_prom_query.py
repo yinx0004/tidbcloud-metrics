@@ -18,6 +18,9 @@ class K8sPromQueryInstance:
              kube_node_labels{tenant="%s",label_cluster="%s",label_component="tiflash"}
         ''' % (cluster_info['tenant_id'], cluster_info['cluster_id'])
 
+        self.component_query = 'sum(kube_node_labels{tenant="%s",label_tidbcloud_cluster="%s"}) by (label_component)' % (
+        cluster_info['tenant_id'], cluster_info['cluster_id'])
+
 
 class K8sPromQueryInstanceMetrics:
     def __init__(self, cluster_info, instance_name):
@@ -60,4 +63,5 @@ class K8sPromQueryBatchInstanceMetrics:
         self.batch_instance_network_transmitted_query = '''
             sum(rate(node_network_transmit_bytes_total{job="node-exporter", tenant="%s", k8s_cluster_info=~"%s", instance=~"%s"}[1m])) by (instance)
         ''' % (cluster_info['tenant_id'], cluster_info['k8s_cluster'], instances)
+
 

@@ -21,7 +21,7 @@ class CapacityPlanner:
                        'plan_percentile_95.0', 'plan_percentile_99.0', 'plan_percentile_99.9']
 
     def cluster_prom_capacity_plan(self):
-        client = PrometheusClient(self.conf)
+        client = PrometheusClient(self.conf, 'cloud')
         metrics_query = CloudPromComponentMetricsQuery()
         capacity_query = CloudPromComponentCapacityQuery()
 
@@ -66,10 +66,10 @@ class CapacityPlanner:
         return dataset
 
     def k8s_prom_capacity_plan(self):
-        k8s_prom_url = "https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820"
+        #k8s_prom_url = "https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820"
 
         # require office network, no authentication needed
-        client = PrometheusClient(self.conf, False, k8s_prom_url)
+        client = PrometheusClient(self.conf, 'k8s', False)
 
         k8s_instance_query = K8sPromQueryInstance(self.conf['cluster_info'])
 
@@ -86,6 +86,7 @@ class CapacityPlanner:
             self.logger.info("Retrieving {} instances information".format(request['component']))
             self.logger.debug("query: {}".format(request['query']))
             instances_info = client.get_metrics(request['query'])
+            #instances_info = client.get_vector_metrics_many(request['query'])
             self.logger.debug("instance_info {}".format(instances_info))
 
             instances = []

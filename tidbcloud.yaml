@@ -3,11 +3,11 @@ logging:
   dir: logs
 
 prometheus:
-  start_time: 06/02/2024 00:00:00
-  end_time: 07/02/2024 23:59:59
+  start_time: 20/02/2024 00:00:00
+  end_time: 21/02/2024 23:59:59
   step_in_seconds: 60s
-  cluster_prom_base_url: https://www.xxx
-  cluster_prom_id_token: eyJhbGciOiJSUz
+  cluster_prom_base_url: https://www.
+  cluster_prom_id_token: eyJhxxxx
 
 capacity:
   plan_traffic_x: 2
@@ -19,7 +19,7 @@ health:
     tidb:
       query_duration_p999: 0.02 #unit: seconds
       qps: 100000
-      failed_query_opm:
+      failed_query_opm: 0
     tikv:
       miss_peer_region_count: 0
       extra_peer_region_count: 0
@@ -44,6 +44,9 @@ health:
       store_offline_count: 0
       store_tombstone_count: 0
       store_slow_count: 0
-
+    tiflash:
+      request_duration_p999: 0.01
+      tiflash_raft_wait_index_duration_max: 0.01
+      tiflash_raft_read_index_duration_max: 0.01
 
 
