@@ -1,24 +1,30 @@
-import sys
-
 from health_checker.reporter import Reporter
 from health_checker.health_analyzer import HealthAnalyzer
 from prometheus.cloud_prom_query import health_query
 from prometheus.prometheus_client import PrometheusClient
 from utils import logger
+from tidb_cluster.tidb_cluster import TiDBCluster
 
 
-class HealthChecker:
-    def __init__(self, conf, support_type):
-        self.conf = conf
-        self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
+class HealthChecker(TiDBCluster):
+#class HealthChecker:
+    #def __init__(self, conf, support_type):
+    #    self.conf = conf
+    #    self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
+    #    self.analyzer = HealthAnalyzer(self.conf)
+    #    self.client = PrometheusClient(self.conf, 'cloud')
+    #    self.support_type = support_type
+
+    def __init__(self, conf, check_type):
+        super().__init__(conf)
+        self.logger = logger.setup_logger(__name__, self.conf['logging']['file_name'], self.conf['logging']['level'])
         self.analyzer = HealthAnalyzer(self.conf)
-        self.client = PrometheusClient(self.conf)
-        self.support_type = support_type
+        self.check_type = check_type
 
     def check_health(self, check_type, send_to=None):
         health_check_result = {}
         if check_type == "all":
-            for component in self.support_type:
+            for component in self.check_type:
                 if component != "all":
                     health_check_result[component] = self.check_component(component)
 
@@ -62,6 +68,7 @@ class HealthChecker:
     def get_metrics(self, queries):
         metrics = {}
         for metric, query in queries.items():
-            result = self.client.get_vector_metrics(query)
+            self.logger.debug("query: {}".format(query))
+            result = self.cloud_prom_client.get_vector_metrics(query)
             metrics[metric] = result
         return metrics

@@ -4,16 +4,20 @@ from utils import logger, helpers
 
 
 class PrometheusClient:
-    def __init__(self, conf, auth=True, url=None):
-        if url is None:
+    def __init__(self, conf, prom_type, auth=True):
+        if prom_type == 'cloud':
             self.base_url = conf['prometheus']['cluster_prom_base_url']
+        elif prom_type == 'k8s':
+            self.base_url = conf['prometheus']['k8s_prom_base_url']
         else:
-            self.base_url = url
+            sys.exit('Invalid prom type')
+
         self.token = conf['prometheus']['cluster_prom_id_token']
         self.start_time = helpers.convert_datetime(conf['prometheus']['start_time'])
         self.end_time = helpers.convert_datetime(conf['prometheus']['end_time'])
         self.step = conf['prometheus']['step_in_seconds']
         self.auth = auth
+        self.domain = conf['prometheus']['domain']
         self.operations = ["max", "average", "percentile_50", "percentile_75", "percentile_80", "percentile_85",
                         "percentile_90", "percentile_95", "percentile_99", "percentile_99.9"]
         self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
@@ -42,7 +46,7 @@ class PrometheusClient:
         return res
 
     def get_resource_capacity_metrics(self, request):
-        res = self.client.custom_query(request['query_capacity'])
+        res = self.client.custom_query(request['query_capacity'], params={'timeout': 60})
         return res
 
     def get_capacity_n_count(self, request):
@@ -63,8 +67,24 @@ class PrometheusClient:
 
     def get_vector_metrics(self, query):
         res = self.client.custom_query(query)
-        self.logger.debug("vector metrics: {}".format(res))
+        #self.logger.debug("vector metrics: {}".format(res))
         if res is not None and len(res) > 0:
             return float(res[0]['value'][1])
         else:
             return None
+
+    def get_vector_metrics_many(self, query):
+        metrics = {}
+        results = self.client.custom_query(query)
+        if results is not None and len(results) > 0:
+            for result in results:
+                for k, v in result['metric'].items():
+                    metrics[v] = result['value'][1]
+        return metrics
+
+    def get_vector_result_raw(self, query):
+        results = self.client.custom_query(query)
+        return results
+
+    def get_cluster_prom_base_url(self):
+        base_url = "{}/tenant/{}/project/{}/application/{}".format(self.domain, cluster_info['tenant_id'], cluster_info['project_id'], cluster_info['cluster_id'])

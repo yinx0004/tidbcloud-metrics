@@ -32,6 +32,19 @@ def dict_to_yaml(dict_var):
     return yaml_content
 
 
+def dictlist_deduplicate(dict_list):
+    result = []
+    item = set()
+    for dict in dict_list:
+        tup = tuple(dict.items())
+        logger.debug(tup)
+        if tup not in item:
+            item.add(tup)
+            result.append(dict)
+            logger.debug(result)
+    return result
+
+
 def validate_non_empty_string(value, name, allow_none=False):
     if value is None and allow_none:
         return

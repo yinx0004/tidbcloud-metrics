@@ -5,8 +5,7 @@ from prometheus.prometheus_client import PrometheusClient
 from prometheus.k8s_prom_query import K8sPromQueryInstance, K8sPromQueryBatchInstanceMetrics
 from prometheus.cloud_prom_query import CloudPromComponentMetricsQuery, CloudPromComponentCapacityQuery
 from capacity_planner.metrics_analyzer import MetricsAnalyzer
-from capacity_planner.aws_ec2_capacity import ec2_resource_capacity
-from datetime import datetime
+from aws.aws_ec2_capacity import ec2_resource_capacity
 
 
 class CapacityPlanner:
@@ -21,7 +20,7 @@ class CapacityPlanner:
                        'plan_percentile_95.0', 'plan_percentile_99.0', 'plan_percentile_99.9']
 
     def cluster_prom_capacity_plan(self):
-        client = PrometheusClient(self.conf)
+        client = PrometheusClient(self.conf, 'cloud')
         metrics_query = CloudPromComponentMetricsQuery()
         capacity_query = CloudPromComponentCapacityQuery()
 
@@ -34,7 +33,7 @@ class CapacityPlanner:
             {'component': 'tikv', 'name': 'CPU(core)', 'query_metric': metrics_query.tikv_cpu,
              'query_capacity': capacity_query.tikv_cpu},
             {'component': 'tikv', 'name': 'Memory(byte)', 'query_metric': metrics_query.tikv_memory,
-             'query_capacity': capacity_query.tikv_memeory},
+             'query_capacity': capacity_query.tikv_memory},
             {'component': 'tikv', 'name': 'Storage(byte)', 'query_metric': metrics_query.tikv_storage,
              'query_capacity': capacity_query.tikv_storage},
             {'component': 'pd', 'name': 'CPU(core)', 'query_metric': metrics_query.pd_cpu,
@@ -66,17 +65,17 @@ class CapacityPlanner:
         return dataset
 
     def k8s_prom_capacity_plan(self):
-        k8s_prom_url = "https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820"
+        #k8s_prom_url = "https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820"
 
         # require office network, no authentication needed
-        client = PrometheusClient(self.conf, False, k8s_prom_url)
+        client = PrometheusClient(self.conf, 'k8s', False)
 
         k8s_instance_query = K8sPromQueryInstance(self.conf['cluster_info'])
 
         k8s_prom_instance_request = [
             {'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},
             {'component': 'tikv', 'query': k8s_instance_query.tikv_instance_query},
-            {'component': 'pdb', 'query': k8s_instance_query.pd_instance_query},
+            {'component': 'pd', 'query': k8s_instance_query.pd_instance_query},
             {'component': 'tiflash', 'query': k8s_instance_query.tiflash_instance_query},
         ]
 
@@ -85,7 +84,9 @@ class CapacityPlanner:
         for request in k8s_prom_instance_request:
             self.logger.info("Retrieving {} instances information".format(request['component']))
             self.logger.debug("query: {}".format(request['query']))
-            instances_info = client.get_metrics(request['query'])
+            #instances_info = client.get_metrics(request['query'])
+            instances_info = client.get_vector_result_raw(request['query'])
+            #instances_info = client.get_vector_metrics_many(request['query'])
             self.logger.debug("instance_info {}".format(instances_info))
 
             instances = []

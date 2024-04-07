@@ -1,25 +1,35 @@
 logging:
-  level: info
+  level: debug
   dir: logs
 
 prometheus:
-  start_time: 06/02/2024 00:00:00
-  end_time: 07/02/2024 23:59:59
+  start_time: 04/04/2024 18:00:00
+  end_time: 05/04/2024 11:15:00
   step_in_seconds: 60s
-  cluster_prom_base_url: https://www.xxx
-  cluster_prom_id_token: eyJhbGciOiJSUz
+  domain: https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud
+  cluster_prom_base_url: https://www
+  cluster_prom_id_token:
+
+lark:
+  app_id:
+  app_secret:
+  user_access_token:
+  tenant_access_token:
+  refresh_token:
+  spreadsheet_token: VpDcsFtvZhnoSQtguw3cuSWlnll
+  sheet_id: 924944
 
 capacity:
-  plan_traffic_x: 2
-  plan_resource_redundancy_x: 2
-  plan_cpu_usage_goal: 10
+  plan_traffic_x: 1
+  plan_resource_redundancy_x: 3.3
+  plan_cpu_usage_goal:
 
 health:
   threshold:
     tidb:
       query_duration_p999: 0.02 #unit: seconds
       qps: 100000
-      failed_query_opm:
+      failed_query_opm: 0
     tikv:
       miss_peer_region_count: 0
       extra_peer_region_count: 0
@@ -44,6 +54,9 @@ health:
       store_offline_count: 0
       store_tombstone_count: 0
       store_slow_count: 0
-
+    tiflash:
+      request_duration_p999: 0.01
+      tiflash_raft_wait_index_duration_max: 0.01
+      tiflash_raft_read_index_duration_max: 0.01
 
 

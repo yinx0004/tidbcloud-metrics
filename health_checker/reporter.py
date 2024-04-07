@@ -1,5 +1,5 @@
 from utils import logger, helpers
-import pprint
+
 
 class Reporter:
     def __init__(self, conf):
