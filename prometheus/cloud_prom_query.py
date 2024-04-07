@@ -17,7 +17,7 @@ class CloudPromComponentCapacityQuery(object):
         self.tidb_cpu = 'count(node_cpu_seconds_total{mode="user", instance=~"db-tidb-.*"}) by (instance)'
         self.tidb_memory = 'node_memory_MemTotal_bytes{component="tidb"}'
         self.tikv_cpu = 'count(node_cpu_seconds_total{mode="user", instance=~"db-tikv-.*"}) by (instance)'
-        self.tikv_memeory = 'node_memory_MemTotal_bytes{component="tikv"}'
+        self.tikv_memory = 'node_memory_MemTotal_bytes{component="tikv"}'
         self.tikv_storage = 'sum(tikv_store_size_bytes{type="capacity"}) by (instance)'
         self.pd_cpu = 'count(node_cpu_seconds_total{mode="user", instance=~"db-pd-.*"}) by (instance)'
         self.pd_memory = 'node_memory_MemTotal_bytes{component="pd"}'

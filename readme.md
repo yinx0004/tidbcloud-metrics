@@ -46,6 +46,10 @@ pip install prometheus-api-client
 ```shell
 pip install pyyaml
 ```
+- openpyxl
+```shell
+pip install openpyxl
+```
 
 # How to use
 1. Configuration in yaml file `tidbcloud.yaml` 

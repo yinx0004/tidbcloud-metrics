@@ -17,6 +17,7 @@ class PrometheusClient:
         self.end_time = helpers.convert_datetime(conf['prometheus']['end_time'])
         self.step = conf['prometheus']['step_in_seconds']
         self.auth = auth
+        self.domain = conf['prometheus']['domain']
         self.operations = ["max", "average", "percentile_50", "percentile_75", "percentile_80", "percentile_85",
                         "percentile_90", "percentile_95", "percentile_99", "percentile_99.9"]
         self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
@@ -80,3 +81,10 @@ class PrometheusClient:
                 for k, v in result['metric'].items():
                     metrics[v] = result['value'][1]
         return metrics
+
+    def get_vector_result_raw(self, query):
+        results = self.client.custom_query(query)
+        return results
+
+    def get_cluster_prom_base_url(self):
+        base_url = "{}/tenant/{}/project/{}/application/{}".format(self.domain, cluster_info['tenant_id'], cluster_info['project_id'], cluster_info['cluster_id'])

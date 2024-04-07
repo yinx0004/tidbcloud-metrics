@@ -3,7 +3,7 @@ from health_checker.health_analyzer import HealthAnalyzer
 from prometheus.cloud_prom_query import health_query
 from prometheus.prometheus_client import PrometheusClient
 from utils import logger
-from library.tidb_cluster import TiDBCluster
+from tidb_cluster.tidb_cluster import TiDBCluster
 
 
 class HealthChecker(TiDBCluster):

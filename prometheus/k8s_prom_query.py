@@ -1,7 +1,7 @@
 
 
 class K8sPromQueryInstance:
-    def __init__(self, cluster_info):
+    def __init__(self, cluster_info, component=None):
         self.tidb_instance_query = '''
             kube_node_labels{tenant="%s",label_cluster="%s",label_component="tidb"}
         ''' % (cluster_info['tenant_id'], cluster_info['cluster_id'])
@@ -20,6 +20,14 @@ class K8sPromQueryInstance:
 
         self.component_query = 'sum(kube_node_labels{tenant="%s",label_tidbcloud_cluster="%s"}) by (label_component)' % (
         cluster_info['tenant_id'], cluster_info['cluster_id'])
+
+        self.dedicated_cluster_by_tenant_query = 'kube_node_labels{tenant="%s",label_servicetype="dedicated"}' % (cluster_info['tenant_id'])
+
+        self.dedicated_cluster_by_project_query = 'kube_node_labels{tenant="%s",project="%s",label_servicetype="dedicated"}' % (cluster_info['tenant_id'], cluster_info['project_id'])
+
+        self.component_instance_query = '''
+            kube_node_labels{tenant="%s",label_cluster="%s",label_component="%s"}
+        ''' % (cluster_info['tenant_id'], cluster_info['cluster_id'], component)
 
 
 class K8sPromQueryInstanceMetrics:
