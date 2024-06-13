@@ -3,6 +3,7 @@ Run this command line script to get TiDBCloud Cluster Metrics
 - Capacity plan: a capacity plan will be generated based on the metrics and estimated traffic increase and resource redundancy required.
 It will be saved in a csv file.
 - Health check: a health report will be generated.
+- List clusters: List all clusters for a tenant, including cluster id, project id, number of nodes for each TiDB components
 ```shell
 $ python3 main.py --help
 Usage: main.py [OPTIONS] COMMAND [ARGS]...
@@ -13,6 +14,7 @@ Options:
 Commands:
   capacity
   health-check
+  list-clusters
 
 $ python3 main.py capacity --help
 Welcome to TiDBCloud Capacity Planner and Health Checker!
@@ -33,6 +35,14 @@ Options:
   -r, --report [console]          report channel
   --help                          Show this message and exit.
 
+$ python3 main.py list-clusters --help
+Welcome to TiDBCloud Capacity Planner and Health Checker!
+Usage: main.py list-clusters [OPTIONS]
+
+Options:
+  -w, --write [Yes|No]  Write to spreadsheet
+  --help                Show this message and exit.
+
 ```
 
 
@@ -50,6 +60,10 @@ pip install pyyaml
 ```shell
 pip install openpyxl
 ```
+- click
+```shell
+pip install click
+```
 
 # How to use
 1. Configuration in yaml file `tidbcloud.yaml` 
@@ -62,6 +76,7 @@ pip install openpyxl
 - `prometheus.cluster_prom_base_url`: URL for prometheus API, contains TiDBCloud Cluster information
 - `capacity.plan_traffic_x`: Estimated times of traffic increase 
 - `capacity.plan_resource_redundancy_x`: Times of resource redundancy required
+- `lark.user_access_token`: Compulsory for `list-cluster` if you want to write results in to Lark speadsheet
 
 2. How to get `prometheus.cluster_prom_id_token` and `prometheus.cluster_prom_base_url`
 - step 1, login tidbcloud.com in Chrome
@@ -157,7 +172,13 @@ tikv:
                 tikv_raftstore_store_write_msg_block_wait_duration_seconds_count: 0.0
                 tikv_scheduler_too_busy_total: null
 ```
-
+# List clusters
+## example
+```shell
+Cluster ID: 1111111111111111111 Project ID: 1333333333333333333 Tenant ID: 1388888888888888888 TiDB: 24 TiKV: 51 TiFlash: 33
+Cluster ID: 1222222222222222222 Project ID: 1444444444444444444 Tenant ID: 1388888888888888888 TiDB: 38 TiKV: 36 TiFlash: 25
+Cluster ID: 1333333333333333333 Project ID: 1455444444444444444 Tenant ID: 1388888888888888888 TiDB: 32 TiKV: 46 TiFlash: 15
+```
 # Notice
 >**For On-premise deployment TiDB cluster, please download v0.1.0**
 
