@@ -20,8 +20,8 @@ lark:
   sheet_id: 924944
 
 capacity:
-  plan_traffic_x: 1
-  plan_resource_redundancy_x: 3.3
+  plan_traffic_x: 1    # 1 means traffic no increase
+  plan_resource_redundancy_x: 3.3  # equals to 1/watermark
   plan_cpu_usage_goal:
 
 health:
