@@ -36,16 +36,16 @@ class CapacityPlanner:
              'query_capacity': capacity_query.tikv_memory},
             {'component': 'tikv', 'name': 'Storage(byte)', 'query_metric': metrics_query.tikv_storage,
              'query_capacity': capacity_query.tikv_storage},
-            {'component': 'pd', 'name': 'CPU(core)', 'query_metric': metrics_query.pd_cpu,
-             'query_capacity': capacity_query.pd_cpu},
-            {'component': 'pd', 'name': 'Memory(byte)', 'query_metric': metrics_query.pd_memory,
-             'query_capacity': capacity_query.pd_memory},
             {'component': 'tiflash', 'name': 'CPU(core)', 'query_metric': metrics_query.tiflash_cpu,
              'query_capacity': capacity_query.tiflash_cpu},
             {'component': 'tiflash', 'name': 'Memory(byte)', 'query_metric': metrics_query.tiflash_memory,
              'query_capacity': capacity_query.tiflash_memory},
             {'component': 'tiflash', 'name': 'Storage(byte)', 'query_metric': metrics_query.tiflash_storage,
              'query_capacity': capacity_query.tiflash_storage},
+            {'component': 'pd', 'name': 'CPU(core)', 'query_metric': metrics_query.pd_cpu,
+             'query_capacity': capacity_query.pd_cpu},
+            {'component': 'pd', 'name': 'Memory(byte)', 'query_metric': metrics_query.pd_memory,
+             'query_capacity': capacity_query.pd_memory},
         ]
 
         dataset = []
@@ -75,8 +75,8 @@ class CapacityPlanner:
         k8s_prom_instance_request = [
             {'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},
             {'component': 'tikv', 'query': k8s_instance_query.tikv_instance_query},
-            {'component': 'pd', 'query': k8s_instance_query.pd_instance_query},
             {'component': 'tiflash', 'query': k8s_instance_query.tiflash_instance_query},
+            {'component': 'pd', 'query': k8s_instance_query.pd_instance_query},
         ]
 
         dataset = []
@@ -135,7 +135,15 @@ class CapacityPlanner:
         elif mode == "node":
             plan = self.k8s_prom_capacity_plan()
         elif mode == "all":
-            plan = self.cluster_prom_capacity_plan() + self.k8s_prom_capacity_plan()
+            tmp_plan = self.cluster_prom_capacity_plan() + self.k8s_prom_capacity_plan()
+            component_order = ['tidb', 'tikv', 'tiflash', 'pd']
+            metrics_name_order = ['CPU(core)', 'Memory(byte)', 'Storage(byte)', 'Disk IOPS', 'Disk Bandwidth(byte)', 'NetworkIn Bandwidth(byte)', 'NetworkOut Bandwidth(byte)']
+            for component in component_order:
+                for metric_name in metrics_name_order:
+                    for dict in tmp_plan:
+                        print("let me see: {}".format(dict))
+                        if dict['component'] == component and dict['name'] == metric_name:
+                            plan.append(dict)
         else:
             self.logger.error("Not supported mode: {}!".format(mode))
             sys.exit(1)
