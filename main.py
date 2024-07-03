@@ -43,24 +43,35 @@ def health_check(type, report):
 @click.option('--write', '-w', prompt=True, type=click.Choice(['Yes', 'No']), default='Yes', help='Write to spreadsheet')
 def list_clusters(write):
     clusters = tidb_cluster.get_dedicated_clusters_by_tenant_from_k8s()
-    components_list = [['TenantID', 'ProjectID', 'ClusterID', 'TiDB_Cnt', 'PD_Cnt', 'TiKV_Cnt', 'TiFlash_Cnt']]
-    #components_list = [['TenantID', 'ProjectID', 'ClusterID', 'TiDB_Cnt', 'TiDB_CPU', 'TiDB_Memory(GB)', 'PD_Cnt', 'PD_CPU', 'PD_Memory(GB)', 'TiKV_Cnt', 'TiKV_CPU', 'TiKV_Memory(GB)', 'TiKV_Storage(GB)', 'TiFlash_Cnt', 'TiFlash_CPU', 'TiFlash_Memory(GB)', 'TiFlash_Storage(GB)']]
+    components_list = [['TenantID', 'ProjectID', 'ClusterID', 'TiDB_Cnt', 'TiDB_CPU', 'TiDB_Memory(byte)', 'PD_Cnt', 'PD_CPU', 'PD_Memory(byte)', 'TiKV_Cnt', 'TiKV_CPU', 'TiKV_Memory(byte)', 'TiFlash_Cnt', 'TiFlash_CPU', 'TiFlash_Memory(byte)']]
     for cluster in clusters:
         conf['cluster_info'] = cluster
         new_cluster = TiDBCluster(conf)
         components = new_cluster.get_components_from_k8s()
-        #components = new_cluster.get_components_from_cloud()
+
+        capacity = {}
+        for component in components.keys():
+            instances = new_cluster.get_instances_by_component(component)
+            ec2_type = list(instances[0].values())[0]
+            capacity[component] = new_cluster.get_capacity_by_instance_type(ec2_type)
 
         if 'tiflash' in components:
-            components_node_count_list = [cluster['tenant_id'], cluster['project_id'], cluster['cluster_id'], int(components['tidb']), int(components['pd']), int(components['tikv']), int(components['tiflash'])]
-            print("Cluster ID: {} Project ID: {} Tenant ID: {} TiDB: {} TiKV: {} TiFlash: {}".format(cluster['cluster_id'], cluster['project_id'], cluster['tenant_id'], components['tidb'], components['tikv'], components['tiflash']))
+            components_node_count_list = [cluster['tenant_id'], cluster['project_id'], cluster['cluster_id'], int(components['tidb']), int(capacity['tidb']['CPU(core)']), int(capacity['tidb']['Memory(byte)']), int(components['pd']), int(capacity['pd']['CPU(core)']), int(capacity['pd']['Memory(byte)']), int(components['tikv']), int(capacity['tikv']['CPU(core)']), int(capacity['tikv']['Memory(byte)']), int(components['tiflash']), int(capacity['tiflash']['CPU(core)']), int(capacity['tiflash']['Memory(byte)'])]
+            print("Cluster ID: {} Project ID: {} Tenant ID: {} TiDB Count: {} TiDB CPU: {} TiDB Memory: {} PD Count: {} PD CPU: {} PD Memory: {} TiKV Count: {} TiKV CPU: {} TiKV Memory:{} TiFlash Count: {} TiFlash CPU: {} TiFlash Memory: {}".format(cluster['cluster_id'], cluster['project_id'], cluster['tenant_id'], components['tidb'], capacity['tidb']['CPU(core)'], capacity['tidb']['Memory(byte)'], components['pd'], capacity['pd']['CPU(core)'], capacity['pd']['Memory(byte)'], components['tikv'], capacity['tikv']['CPU(core)'], capacity['tikv']['Memory(byte)'], components['tiflash'], capacity['tiflash']['CPU(core)'], capacity['tiflash']['Memory(byte)']))
         else:
-            components_node_count_list = [cluster['tenant_id'], cluster['project_id'], cluster['cluster_id'], int(components['tidb']), int(components['pd']), int(components['tikv']), 0]
-            print("Cluster ID: {} Project ID: {} Tenant ID: {} TiDB: {} TiKV: {}".format(cluster['cluster_id'],
+            components_node_count_list = [cluster['tenant_id'], cluster['project_id'], cluster['cluster_id'], int(components['tidb']), int(capacity['tidb']['CPU(core)']), int(capacity['tidb']['Memory(byte)']), int(components['pd']), int(capacity['pd']['CPU(core)']), int(capacity['pd']['Memory(byte)']), int(components['tikv']), int(capacity['tikv']['CPU(core)']), int(capacity['tikv']['Memory(byte)']), 0, 0, 0]
+            print("Cluster ID: {} Project ID: {} Tenant ID: {} TiDB Count: {} TiDB CPU: {} TiDB Memory: {} PD Count: {} PD CPU: {} PD Memory: {} TiKV Count: {} TiKV CPU: {} TiKV Memory:{}".format(cluster['cluster_id'],
                                                                                              cluster['project_id'],
                                                                                              cluster['tenant_id'],
                                                                                              components['tidb'],
+                                                                                             capacity['tidb']['CPU(core)'],
+                                                                                             capacity['tidb']['Memory(byte)'],
+                                                                                             components['pd'],
+                                                                                              capacity['pd']['CPU(core)'],
+                                                                                             capacity['pd']['Memory(byte)'],
                                                                                              components['tikv'],
+                                                                                            capacity['tikv']['CPU(core)'],
+                                                                                            capacity['tikv']['Memory(byte)']
                                                                                              ))
         components_list.append(components_node_count_list)
 
