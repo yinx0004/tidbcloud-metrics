@@ -18,7 +18,9 @@ class K8sPromQueryInstance:
              kube_node_labels{tenant="%s",label_cluster="%s",label_component="tiflash"}
         ''' % (cluster_info['tenant_id'], cluster_info['cluster_id'])
 
-        self.component_query = 'sum(kube_node_labels{tenant="%s",label_tidbcloud_cluster="%s"}) by (label_component)' % (
+        #self.component_query = 'sum(kube_node_labels{tenant="%s",label_tidbcloud_cluster="%s"}) by (label_component)' % (
+        #cluster_info['tenant_id'], cluster_info['cluster_id'])
+        self.component_query = 'sum(kube_node_labels{tenant="%s",label_tidb_namespace="tidb%s"}) by (label_component)' % (
         cluster_info['tenant_id'], cluster_info['cluster_id'])
 
         self.dedicated_cluster_by_tenant_query = 'kube_node_labels{tenant="%s",label_servicetype="dedicated"}' % (cluster_info['tenant_id'])
