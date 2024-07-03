@@ -67,7 +67,7 @@ class PrometheusClient:
 
     def get_vector_metrics(self, query):
         res = self.client.custom_query(query)
-        #self.logger.debug("vector metrics: {}".format(res))
+        self.logger.debug("vector metrics: {}".format(res))
         if res is not None and len(res) > 0:
             return float(res[0]['value'][1])
         else:
