@@ -14,6 +14,8 @@ class TiDBCluster:
         self.cloud_prom_client = PrometheusClient(self.conf, 'cloud')
         self.k8s_prom_client = PrometheusClient(self.conf, 'k8s', False)
         self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
+        self.conf['cluster_info']['access_points'] = self.get_access_point_from_cloud_prom()
+        self.conf['cluster_info']['has_multi_access_point'] = self.has_multi_access_point()
 
     def get_components_from_k8s(self):
         k8s = K8sPromQueryInstance(self.conf['cluster_info'])
@@ -112,3 +114,40 @@ class TiDBCluster:
                 capacity = None
 
             return capacity
+
+    def get_access_point_from_cloud_prom(self):
+        cloud = CloudPromComponentMetricsQuery()
+        tidb_uptime_metrics = self.cloud_prom_client.get_vector_result_raw(cloud.tidb_uptime)
+        access_point_set = set()
+        access_point_ids = []
+        for item in tidb_uptime_metrics:
+            instance_cluster = item['metric']['cluster']
+            access_point_set.add(instance_cluster)
+        for ac in access_point_set:
+            if ac == 'db':
+                access_point_ids.append('0')
+            else:
+                tmp = ac.split('-')
+                access_point_ids.append(tmp[1])
+        return access_point_ids
+
+    def has_multi_access_point(self):
+        if len(self.conf['cluster_info']['access_points']) > 1:
+            return True
+        else:
+            return False
+
+    def get_access_point_info(self):
+        if self.has_multi_access_point():
+            access_point_info = {}
+            for access_point_id in self.conf['cluster_info']['access_points']:
+                if access_point_id != '0':
+                    access_point_info[access_point_id] = 'tidb-ac-%s' % access_point_id
+                else:
+                    access_point_info[access_point_id] = 'tidb'
+            return access_point_info
+        else:
+            return None
+
+    def get_access_point_tidb_component(self):
+        return sorted(list(self.get_access_point_info().values()))

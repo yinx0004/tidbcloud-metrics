@@ -1,7 +1,12 @@
 class CloudPromComponentMetricsQuery(object):
-    def __init__(self):
+    def __init__(self, access_point_id=None):
+        self.tidb_uptime = '(time() - process_start_time_seconds{component="tidb"})'
         self.tidb_cpu = 'irate(process_cpu_seconds_total{component="tidb"}[2m])'
+        self.tidb_cpu_ac = 'irate(process_cpu_seconds_total{component="tidb", instance=~".*-ac-%s"}[2m])' % access_point_id
+        self.tidb_cpu_ac_default = 'irate(process_cpu_seconds_total{component="tidb", instance!~".*-ac-.*"}[2m])'
         self.tidb_memory = 'process_resident_memory_bytes{component="tidb"}'
+        self.tidb_memory_ac = 'process_resident_memory_bytes{component="tidb", instance=~".*-ac-%s"}' % access_point_id
+        self.tidb_memory_ac_default = 'process_resident_memory_bytes{component="tidb", instance!~".*-ac-.*"}'
         self.tikv_cpu = 'sum(rate(process_cpu_seconds_total{component=~".*tikv"}[2m])) by (instance)'
         self.tikv_memory = 'avg(process_resident_memory_bytes{component=~".*tikv"}) by (instance)'
         self.tikv_storage = 'sum(tikv_store_size_bytes{type="used"}) by (instance)'
@@ -13,9 +18,13 @@ class CloudPromComponentMetricsQuery(object):
 
 
 class CloudPromComponentCapacityQuery(object):
-    def __init__(self):
+    def __init__(self, access_point_id=None):
         self.tidb_cpu = 'count(node_cpu_seconds_total{mode="user", instance=~"db-tidb-.*"}) by (instance)'
+        self.tidb_cpu_ac = 'count(node_cpu_seconds_total{mode="user", instance=~"db-tidb-.*-ac-%s"}) by (instance)' % access_point_id
+        self.tidb_cpu_ac_default = 'count(node_cpu_seconds_total{mode="user", instance=~"db-tidb-[0-9]+"}) by (instance)'
         self.tidb_memory = 'node_memory_MemTotal_bytes{component="tidb"}'
+        self.tidb_memory_ac = 'node_memory_MemTotal_bytes{component="tidb", instance=~".*-ac-%s"}' % access_point_id
+        self.tidb_memory_ac_default = 'node_memory_MemTotal_bytes{component="tidb", instance!~".*-ac-.*"}'
         self.tikv_cpu = 'count(node_cpu_seconds_total{mode="user", instance=~"db-tikv-.*"}) by (instance)'
         self.tikv_memory = 'node_memory_MemTotal_bytes{component="tikv"}'
         self.tikv_storage = 'sum(tikv_store_size_bytes{type="capacity"}) by (instance)'
@@ -72,4 +81,3 @@ config_query = {
 }
 
 component_query = 'count(node_memory_MemTotal_bytes) by (component)'
-

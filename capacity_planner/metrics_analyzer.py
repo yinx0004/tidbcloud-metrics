@@ -39,7 +39,7 @@ class MetricsAnalyzer:
             data["capacity"] = self.capacity
             data["instance_cnt"] = self.instance_cnt
 
-            if self.request['component'] == 'tidb' and self.request['name'] == 'Memory(byte)':
+            if "tidb" in self.request['component'] and self.request['name'] == 'Memory(byte)':
                 plan = self.get_tidb_mem_resource_capacity_plan(self.instance_cnt, self.capacity)
             else:
                 plan = self.get_resource_capacity_plan(self.instance_cnt, self.capacity)

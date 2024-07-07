@@ -38,7 +38,6 @@ class PrometheusClient:
         else:
             step = str(self.step)
 
-        self.logger.debug("step={}, type={}".format(step, type(step)))
         res = self.client.get_metric_aggregation(
             query=request['query_metric'],
             start_time=self.start_time, end_time=self.end_time, step=step,
