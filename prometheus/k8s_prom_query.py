@@ -1,10 +1,18 @@
 
 
 class K8sPromQueryInstance:
-    def __init__(self, cluster_info, component=None):
+    def __init__(self, cluster_info, access_point_id=None, component=None):
         self.tidb_instance_query = '''
             kube_node_labels{tenant="%s",label_cluster="%s",label_component="tidb"}
         ''' % (cluster_info['tenant_id'], cluster_info['cluster_id'])
+
+        self.tidb_instance_query_ac = '''
+            kube_node_labels{tenant="%s",label_cluster="%s",label_component="tidb", label_tidbcloud_cluster="%s-%s"}
+        ''' % (cluster_info['tenant_id'], cluster_info['cluster_id'], cluster_info['cluster_id'], access_point_id)
+
+        self.tidb_instance_query_ac_default = '''
+            kube_node_labels{tenant="%s",label_cluster="%s",label_component="tidb", label_tidbcloud_cluster="%s"}
+        ''' % (cluster_info['tenant_id'], cluster_info['cluster_id'], cluster_info['cluster_id'])
 
         self.tikv_instance_query = '''
              kube_node_labels{tenant="%s",label_cluster="%s",label_component="tikv"}

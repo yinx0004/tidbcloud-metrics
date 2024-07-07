@@ -65,7 +65,7 @@ class TiDBCluster:
 
     def get_instances_by_component(self, component):
         instances = []
-        k8s = K8sPromQueryInstance(self.conf['cluster_info'], component)
+        k8s = K8sPromQueryInstance(self.conf['cluster_info'], None, component)
         instances_info = self.k8s_prom_client.get_vector_result_raw(k8s.component_instance_query)
         for item in instances_info:
             instance = {}

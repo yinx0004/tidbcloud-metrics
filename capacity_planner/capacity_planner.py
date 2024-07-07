@@ -112,12 +112,28 @@ class CapacityPlanner(TiDBCluster):
 
         k8s_instance_query = K8sPromQueryInstance(self.conf['cluster_info'])
 
-        k8s_prom_instance_request = [
-            {'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},
+        if self.access_point_info is None:
+            tidb_requests = [{'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},]
+        else:
+            tidb_requests = []
+            for access_point_id, access_point_component in self.access_point_info.items():
+                k8s_instance_query = K8sPromQueryInstance(self.conf['cluster_info'], access_point_id)
+                if access_point_id != '0':
+                    instance_query = k8s_instance_query.tidb_instance_query_ac
+                else:
+                    instance_query = k8s_instance_query.tidb_instance_query_ac_default
+
+                req = [{'component': access_point_component, 'query': instance_query}]
+                tidb_requests += req
+
+        k8s_prom_instance_request = tidb_requests + [
+            #{'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},
             {'component': 'tikv', 'query': k8s_instance_query.tikv_instance_query},
             {'component': 'tiflash', 'query': k8s_instance_query.tiflash_instance_query},
             {'component': 'pd', 'query': k8s_instance_query.pd_instance_query},
         ]
+
+        print("k8s_requests: {}".format(k8s_prom_instance_request))
 
         dataset = []
 
