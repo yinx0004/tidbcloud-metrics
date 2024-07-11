@@ -1,37 +1,30 @@
-Package               Version
---------------------- ----------
-certifi               2024.2.2
-charset-normalizer    3.3.2
-click                 8.1.7
-contourpy             1.2.0
-cycler                0.12.1
-dateparser            1.2.0
-et-xmlfile            1.1.0
-fonttools             4.47.2
-httmock               1.4.0
-idna                  3.6
-importlib-resources   6.1.1
-kiwisolver            1.4.5
-matplotlib            3.8.2
-numpy                 1.26.3
-openpyxl              3.1.2
-packaging             23.2
-pandas                2.2.0
-parsedatetime         2.6
-pillow                10.2.0
-pip                   23.2.1
-prometheus-api-client 0.5.4
-pyparsing             3.1.1
-python-dateutil       2.8.2
-pytz                  2024.1
-PyYAML                6.0.1
-regex                 2023.12.25
-requests              2.31.0
-setuptools            68.2.0
-six                   1.16.0
-tzdata                2023.4
-tzlocal               5.2
-urllib3               2.2.0
-wheel                 0.41.2
-yamlloader            1.3.2
-zipp                  3.17.0
+certifi==2024.7.4
+charset-normalizer==3.3.2
+click==8.1.7
+contourpy==1.2.1
+cycler==0.12.1
+dateparser==1.2.0
+et-xmlfile==1.1.0
+fonttools==4.53.1
+httmock==1.4.0
+idna==3.7
+importlib_resources==6.4.0
+kiwisolver==1.4.5
+matplotlib==3.9.1
+numpy==2.0.0
+openpyxl==3.1.2
+packaging==24.1
+pandas==2.2.2
+pillow==10.4.0
+prometheus-api-client==0.5.4
+pyparsing==3.1.2
+python-dateutil==2.9.0.post0
+pytz==2024.1
+PyYAML==6.0.1
+regex==2024.5.15
+requests==2.31.0
+six==1.16.0
+tzdata==2024.1
+tzlocal==5.2
+urllib3==2.2.2
+zipp==3.19.2
