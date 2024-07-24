@@ -101,7 +101,7 @@ class Configer:
 
     def get_token_from_tidbcloudapi(self):
 
-        self.conf = helpers.parse_yaml(self.config_file)
+        # self.conf = helpers.parse_yaml(self.config_file)
         helpers.validate_non_empty_string(
             self.conf['tidbcloud']['authenticate_url'],
             'authenticate_url',
