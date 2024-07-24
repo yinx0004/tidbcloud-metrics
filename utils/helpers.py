@@ -2,6 +2,9 @@ import yaml
 from datetime import datetime
 import csv
 from utils import logger
+import random
+import string
+import re
 
 logger = logger.setup_logger(__name__)
 
@@ -84,3 +87,38 @@ def validate_boolean(value, name, allow_none=False):
     if not isinstance(value, bool):
         logger.error("{} must be an boolean".format(name))
         raise ValueError(f"{name} must be a boolean")
+
+def generate_random_string(length):
+        letters = string.ascii_letters  # 包含所有字母的字符串
+        result_str = ''.join(random.choice(letters) for i in range(length))
+        return result_str
+
+def extract_and_combine(input_string, key_list):
+    result_dict = {}
+    
+    for key in key_list:
+        pattern = rf'{key}=(.*?);'
+        match = re.search(pattern, input_string)
+        
+        if match:
+            value = match.group(1)
+            result_dict[key] = value
+    
+    new_string = ';'.join([f"{k}={v}" for k, v in result_dict.items()])
+    return new_string
+
+def escape_space(input_string):
+    return ''.join('%20' if c == ' ' else c for c in input_string)
+
+def extract_id_token(input_string,start_string,end_string):
+    start_index = input_string.find(start_string)
+    if start_index != -1:
+        id_token_value = input_string[start_index + len(start_string):]
+        
+        end_index = id_token_value.find(end_string)
+        if end_index != -1:
+            id_token_value = id_token_value[:end_index]
+        
+        return id_token_value
+    else:
+        return None

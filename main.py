@@ -10,12 +10,25 @@ from lark.app import LarkApp
 
 # consts
 health_check_type = ["all", "tidb", "tikv", "pd", "tiflash"]
+talent_bz_dynamic = ["talent"]
 #k8s_prom_url = "https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820" # hardcode first
 
 
 @click.group()
 def cli():
     click.echo('Welcome to TiDBCloud Capacity Planner and Health Checker!')
+
+@cli.command()
+@click.option('--business', '-b', prompt=True, type=click.Choice(talent_bz_dynamic), default='talent', help='business dynamic')
+def capacity(business):
+    if mode == 'talent':
+        click.confirm("Have you connected to FeiLian?", abort=True)
+        # 1. 获取租户下所有的 clusters
+        # 2. 遍历 clusters，收集硬件指标和 QPS
+        # 3. 将收集的数据汇总按照要求，计算出关键指标
+        # 4. 按照要求将所有数据按照格式输出 
+        talent_cluster_info = TalentClusterInfo(conf)
+        talent_cluster_info.generate_cluster_and_business_info(business)
 
 
 @cli.command()
