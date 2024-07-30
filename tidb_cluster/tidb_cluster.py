@@ -1,5 +1,5 @@
 import sys
-
+from ai.ai import AI
 import utils.helpers
 from prometheus.prometheus_client import PrometheusClient
 from prometheus.k8s_prom_query import K8sPromQueryInstance
@@ -16,11 +16,13 @@ class TiDBCluster:
         self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
         self.conf['cluster_info']['access_points'] = self.get_access_point_from_cloud_prom()
         self.conf['cluster_info']['has_multi_access_point'] = self.has_multi_access_point()
+        self.csv_file_name = "data/tenant_{}_{}.csv".format(self.conf['cluster_info']['tenant_id'], self.conf['time'])
 
     def get_components_from_k8s(self):
         k8s = K8sPromQueryInstance(self.conf['cluster_info'])
         components = self.k8s_prom_client.get_vector_metrics_many(k8s.component_query)
         return components
+
 
     def get_dedicated_clusters_by_tenant_from_k8s(self):
         cluster_list = []
@@ -31,37 +33,85 @@ class TiDBCluster:
             cluster['tenant_id'] = result['metric']['label_tenant']
             cluster['project_id'] = result['metric']['label_project']
             cluster['cluster_id'] = result['metric']['label_cluster']
-            self.logger.debug(cluster)
+            # self.logger.debug(cluster)
             cluster_list.append(cluster)
-        self.logger.debug(cluster_list)
-        cluster_list = utils.helpers.dictlist_deduplicate(cluster_list)
+        # self.logger.debug(cluster_list)
+        cluster_list = utils.helpers.deduplicate_dict_list(cluster_list)
         return cluster_list
 
-    def get_dedicated_clusters_by_project_from_k8s(self):
-        cluster_list = []
+    def get_clusters_basic_info_by_tenant_from_k8s(self):
+        cluster_basic_info = []
         k8s = K8sPromQueryInstance(self.conf['cluster_info'])
-        results = self.k8s_prom_client.get_vector_result_raw(k8s.dedicated_cluster_by_project_query)
+        results = self.k8s_prom_client.get_vector_result_raw(k8s.dedicated_cluster_by_tenant_query)
         for result in results:
             cluster = {}
             cluster['tenant_id'] = result['metric']['label_tenant']
             cluster['project_id'] = result['metric']['label_project']
             cluster['cluster_id'] = result['metric']['label_cluster']
-            self.logger.debug(cluster)
-            cluster_list.append(cluster)
-        self.logger.debug(cluster_list)
-        cluster_list = utils.helpers.dictlist_deduplicate(cluster_list)
-        return cluster_list
+            cluster['component'] = result['metric']['label_component']
+            cluster['component_instance_type'] = result['metric']['label_beta_kubernetes_io_instance_type']
+            cluster = {**cluster,**self.get_capacity_by_instance_type(cluster['component_instance_type'])}
+            # self.logger.debug(cluster)
+            if cluster['component'] in ['tikv', 'tiflash','pd','tidb']:
+                cluster_basic_info.append(cluster)
+
+        # self.logger.debug(cluster_list)
+        cluster_basic_info = utils.helpers.deduplicate_dict_list(cluster_basic_info)
+        return cluster_basic_info
 
     def get_components_from_cloud(self):
         components = self.cloud_prom_client.get_vector_metrics_many(component_query)
         self.logger.debug('components get from cloud: {}'.format(components))
         return components
+    
+    def get_components_from_cloud_use_cluster_info(self):
+        cloud_prom_client = PrometheusClient(self.conf, 'cloud')
+        components = cloud_prom_client.get_vector_metrics_many(component_query)
+        self.logger.debug('components get from cloud: {}'.format(components))
+        return components
+
+    def get_qps_from_cloud_use_cluster_info(self,start_time,end_time,operations):
+        cloud_prom_client = PrometheusClient(self.conf, 'cloud')
+        qps = cloud_prom_client.client.get_metric_aggregation(start_time=start_time,end_time=end_time,query=health_query['tidb']['qps'],step=60,operations=operations)
+        return qps
+
+    def get_data_size_from_cloud_use_cluster_info(self,start_time,end_time,operations):
+        cloud_prom_client = PrometheusClient(self.conf, 'cloud')
+        data_size = cloud_prom_client.client.get_metric_aggregation(start_time=start_time,end_time=end_time,query=health_query['tidb']['data_size'],step=60,operations=operations)
+        return data_size
 
     def validate_component(self, component):
         if component in self.get_components_from_cloud():
             return True
         else:
             return False
+
+    def get_cluster_basic_info_by_ai(self):
+        ai = AI()
+        input="查询租户 {} 下，所有集群的集群名称、集群 ID、集群版本".format(self.conf['cluster_info']['tenant_id'])
+        id=ai.post_request(request_input=[input])
+        res=ai.get_data_with_retry(id)
+        return res
+
+    # 根据 tenant_id, project_id,cluster_id 信息获取集群其他信息
+    def get_basic_info_by_clusters(self,clusters,start_time,end_time,operations):
+        clusters_basic_info = []
+
+        for cluster in clusters:
+            self.conf['cluster_info']['tenant_id'] = cluster['tenant_id']
+            self.conf['cluster_info']['project_id'] = cluster['project_id']
+            self.conf['cluster_info']['cluster_id'] = cluster['cluster_id']
+            
+            instances_info = self.get_components_from_cloud_use_cluster_info()
+
+            instances_info['qps'] = self.get_qps_from_cloud_use_cluster_info(start_time,end_time,operations)
+            instances_info['data_size'] = self.get_data_size_from_cloud_use_cluster_info(start_time,end_time,operations)
+            # k8s = K8sPromQueryInstance(self.conf['cluster_info'], None, component)
+            # self.k8s_prom_client = PrometheusClient(self.conf, 'k8s', False)
+            # instances_info = self.k8s_prom_client.get_vector_result_raw(k8s.component_instance_query)
+            cluster_info = {**cluster,**instances_info}
+            clusters_basic_info.append(cluster_info)
+        return clusters_basic_info
 
     def get_instances_by_component(self, component):
         instances = []
