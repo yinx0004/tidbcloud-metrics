@@ -40,6 +40,7 @@ health_query = {
         'query_duration_p999': 'histogram_quantile(0.999, sum(rate(tidb_server_handle_query_duration_seconds_bucket[2m])) by (le))',
         'qps': 'sum(rate(tidb_executor_statement_total[2m]))',
         'failed_query_opm': 'sum(increase(tidb_server_execute_error_total[1m])) by (type, instance)',
+        'data_size': 'sum(pd_cluster_status{type="storage_size"})'
         #'last_gc_time':'',
     },
     'tikv': {
