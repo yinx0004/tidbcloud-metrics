@@ -8,6 +8,7 @@ class PrometheusClient:
         if prom_type == 'cloud':
             self.base_url = conf['prometheus']['cluster_prom_base_url']
         elif prom_type == 'k8s':
+            print("k8s_prom_base_url"+conf['prometheus']['k8s_prom_base_url'])
             self.base_url = conf['prometheus']['k8s_prom_base_url']
         else:
             sys.exit('Invalid prom type')
@@ -20,6 +21,7 @@ class PrometheusClient:
         self.domain = conf['prometheus']['domain']
         self.operations = ["max", "average", "percentile_50", "percentile_75", "percentile_80", "percentile_85",
                         "percentile_90", "percentile_95", "percentile_99", "percentile_99.9"]
+        
         self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
         self.client = self.connect()
 

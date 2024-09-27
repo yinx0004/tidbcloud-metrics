@@ -2,13 +2,18 @@ logging:
   level: debug
   dir: logs
 
+tidbcloud:
+  authenticate_url: https://tidb.auth0.com/co/authenticate
+  username: yuechangqiang@pingcap.com
+  password: Ycq923356288@@@@@@@@
+
 prometheus:
   start_time: 04/04/2024 18:00:00
   end_time: 05/04/2024 11:15:00
   step_in_seconds: 60s
   domain: https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud
-  cluster_prom_base_url: https://www
-  cluster_prom_id_token:
+  cluster_prom_base_url: https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089193131282/project/1372813089206781474/application/1379661944646415465
+  cluster_prom_id_token: xxxxx
 
 lark:
   app_id:
