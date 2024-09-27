@@ -5,14 +5,6 @@ from utils import logger, helpers
 
 class PrometheusClient:
     def __init__(self, conf, prom_type, auth=True):
-        if prom_type == 'cloud':
-            self.base_url = conf['prometheus']['cluster_prom_base_url']
-        elif prom_type == 'k8s':
-            print("k8s_prom_base_url"+conf['prometheus']['k8s_prom_base_url'])
-            self.base_url = conf['prometheus']['k8s_prom_base_url']
-        else:
-            sys.exit('Invalid prom type')
-
         self.token = conf['prometheus']['cluster_prom_id_token']
         self.start_time = helpers.convert_datetime(conf['prometheus']['start_time'])
         self.end_time = helpers.convert_datetime(conf['prometheus']['end_time'])
@@ -23,17 +15,27 @@ class PrometheusClient:
                         "percentile_90", "percentile_95", "percentile_99", "percentile_99.9"]
         
         self.logger = logger.setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
+        self.conf = conf
+        if prom_type == 'cloud':
+            self.base_url = conf['prometheus']['cluster_prom_base_url']
+            self.base_url = self.get_cluster_prom_base_url()
+        elif prom_type == 'k8s':
+            # print("k8s_prom_base_url"+conf['prometheus']['k8s_prom_base_url'])
+            self.base_url = conf['prometheus']['k8s_prom_base_url']
+        else:
+            sys.exit('Invalid prom type')
         self.client = self.connect()
 
     def connect(self):
         if self.auth:
             client = PrometheusConnect(url=self.base_url, disable_ssl=False,
                                    headers={"Authorization": "bearer {}".format(self.token)})
+            # serf.base_url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089193131282/project/1372813089206781474/application/1379661944646415465'
         else:
             client = PrometheusConnect(url=self.base_url, disable_ssl=False,
                                        headers=None)
         return client
-
+    
     def get_resource_usage_metrics(self, request):
         if 'step' in request.keys():
             step = request['step']
@@ -88,4 +90,8 @@ class PrometheusClient:
         return results
 
     def get_cluster_prom_base_url(self):
-        base_url = "{}/tenant/{}/project/{}/application/{}".format(self.domain, cluster_info['tenant_id'], cluster_info['project_id'], cluster_info['cluster_id'])
+        
+        base_url = "{}/tenant/{}/project/{}/application/{}".format(self.domain, self.conf['cluster_info']['tenant_id'], self.conf['cluster_info']['project_id'], self.conf['cluster_info']['cluster_id'])
+        return base_url
+    # def get_cluster_prom_url(self,tenant_id,project_id,cluster_id):
+    #     return "{}/tenant/{}/project/{}/application/{}".format(self.domain, tenant_id, project_id, cluster_id)

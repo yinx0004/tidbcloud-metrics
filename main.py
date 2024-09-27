@@ -7,6 +7,7 @@ from capacity_planner.capacity_planner import CapacityPlanner
 from tidb_cluster.tidb_cluster import TiDBCluster
 import click
 from lark.app import LarkApp
+import utils
 
 # consts
 health_check_type = ["all", "tidb", "tikv", "pd", "tiflash"]
@@ -20,15 +21,58 @@ def cli():
 
 @cli.command()
 @click.option('--business', '-b', prompt=True, type=click.Choice(talent_bz_dynamic), default='talent', help='business dynamic')
-def capacity(business):
-    if mode == 'talent':
+def cluster_info(business):
+    if business == 'talent':
         click.confirm("Have you connected to FeiLian?", abort=True)
         # 1. 获取租户下所有的 clusters
-        # 2. 遍历 clusters，收集硬件指标和 QPS
-        # 3. 将收集的数据汇总按照要求，计算出关键指标
-        # 4. 按照要求将所有数据按照格式输出 
-        talent_cluster_info = TalentClusterInfo(conf)
-        talent_cluster_info.generate_cluster_and_business_info(business)
+    clusters = tidb_cluster.get_dedicated_clusters_by_tenant_from_k8s()
+    clusters_instance_type = tidb_cluster.get_clusters_basic_info_by_tenant_from_k8s()
+    # 2. 遍历 clusters，收集硬件指标(组件，对应机型，节点数)和 QPS
+    end_time = datetime.datetime.now()
+    start_time = end_time - datetime.timedelta(days=1)
+    operations=['max']
+    clusters_qps_and_nodecount = tidb_cluster.get_basic_info_by_clusters(clusters,start_time,end_time,operations)
+
+    # 3. 获取 clusters 集群名称，集群版本
+    clusters_name_and_version = tidb_cluster.get_cluster_basic_info_by_ai()
+    # print(clusters_name_and_version)
+    # print(type(clusters_name_and_version))
+
+    # 4. 将收集的数据汇总
+    # clusters_name_and_version,clusters_instance_type,clusters_qps_and_nodecount
+    # 合并 clusters_name_and_version 和 clusters_qps_and_nodecount 信息
+    merge_qps_and_nodecount={
+                    'PD 节点数':'pd',
+                    'TiDB 节点数':'tidb',
+                    'TiKV 节点数':'tikv',
+                    'TiFlash 节点数':'tiflash',
+                    'Total QPS(MAX)':'qps',
+                    '实际数据存储量(byte)':'data_size'
+                }
+        
+    merged_res=utils.helpers.merged_list_through_dict_key_value(clusters_name_and_version,clusters_qps_and_nodecount,"cluster_id",merge_qps_and_nodecount)
+    logger.info("first merged_res: {} ".format(merged_res))
+    
+    # 合并 merged_res 和 clusters_instance_type 信息
+
+    merge_instance_type={
+        '组件':'component',
+        '实例类型':'component_instance_type',
+        'CPU(core)': 'CPU(core)',
+        'Memory(byte)': 'Memory(byte)',
+    }
+    merged_res=utils.helpers.merged_list_through_dict_key_value_and_combine_custom_kv(merged_res,clusters_instance_type,"cluster_id",merge_instance_type,True)
+    logger.info("second merged_res: {} ".format(merged_res))
+    merged_res=utils.helpers.deduplicate_use_custom_key(merged_res,"cluster_id")
+    logger.info("third merged_res: {} ".format(merged_res))
+ 
+    # 打印合并后的结果
+
+
+    utils.helpers.write_dictlist_to_csv(merged_res,tidb_cluster.csv_file_name)
+    
+
+    
 
 
 @cli.command()
