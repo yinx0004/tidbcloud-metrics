@@ -8,11 +8,11 @@ tidbcloud:
   password: Ycq923356288@@@@@@@@
 
 prometheus:
-  start_time: 25/06/2024 20:00:00
-  end_time: 26/06/2024 12:00:00
+  start_time: 25/09/2024 20:00:00
+  end_time: 26/09/2024 12:00:00
   step_in_seconds: 60s
-  domain: https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud
-  cluster_prom_base_url: https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089209061633/project/1372813089454536089/application/1379661944646414008
+  domain: https://www.ds.ap-southeast-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud
+  cluster_prom_base_url: https://www.ds.ap-southeast-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089209238420/project/1372813089454556724/application/10104107845298920852
   cluster_prom_id_token: xxxxx
 
 lark:
