@@ -62,10 +62,14 @@ def cluster_info(business):
         'Memory(byte)': 'Memory(byte)',
     }
     merged_res=utils.helpers.merged_list_through_dict_key_value_and_combine_custom_kv(merged_res,clusters_instance_type,"cluster_id",merge_instance_type,True)
-    logger.info("second merged_res: {} ".format(merged_res))
+    # logger.info("second merged_res: {} ".format(merged_res))
     merged_res=utils.helpers.deduplicate_use_custom_key(merged_res,"cluster_id")
-    logger.info("third merged_res: {} ".format(merged_res))
- 
+    # logger.info("third merged_res: {} ".format(merged_res))
+
+    headers=['cluster_id', 'cluster_name', 'version', 'PD 节点数', 'TiDB 节点数', 'TiKV 节点数', 'TiFlash 节点数', 'Total QPS(MAX)', '实际数据存储量(byte)', '组件tikv', '组件tidb', '组件pd', '组件tiflash']
+
+    
+    merged_res=utils.helpers.keep_same_headers(merged_res,headers)
     # 打印合并后的结果
 
 

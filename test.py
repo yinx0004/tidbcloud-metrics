@@ -29,6 +29,8 @@ import ai.ai
 #     if new_data not in data_set:
 #         data_set.add(new_data)
 
+
+
 if __name__ == '__main__':
     # conf = Configer("tidbcloud.yaml").set_conf()
     # logger = setup_logger(__name__, conf['logging']['file_name'], conf['logging']['level'])
@@ -39,7 +41,7 @@ if __name__ == '__main__':
     # k8s 
     # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820'
     # client = PrometheusConnect(url=url, disable_ssl=False,
-                                       headers=None)
+                                    #    headers=None)
     # print(client.custom_query(query='(time() - process_start_time_seconds{component="tidb"})'))                                   
     # cloud
     # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089209061633/project/1372813089454521730/application/1379661944646413610'
@@ -140,3 +142,9 @@ if __name__ == '__main__':
     # unique_list = deduplicate_dict_list(original_list, key_to_check)
 
     # print(unique_list)
+    # data=[{'cluster_id': '10273184600749456107', 'cluster_name': 'prod-seamless-jili', 'version': 'v7.5.3', 'PD 节点数': '3', 'TiDB 节点数': '16', 'TiKV 节点数': '39', 'TiFlash 节点数': 0, 'Total QPS(MAX)': {'max': 168034.00833333333}, '实际数据存储量(byte)': {'max': 76868039144706.0}, '组件tidb': '实例类型:c6g.4xlarge  CPU(core):16  Memory(byte):34359738368  ', '组件pd': '实例类型:c6g.4xlarge  CPU(core):16  Memory(byte):34359738368  ', '组件tikv': '实例类型:m6g.8xlarge  CPU(core):32  Memory(byte):137438953472  '}]
+
+    # headers=['cluster_id', 'cluster_name', 'version', 'PD 节点数', 'TiDB 节点数', 'TiKV 节点数', 'TiFlash 节点数', 'Total QPS(MAX)', '实际数据存储量(byte)', '组件tikv', '组件tidb', '组件pd', '组件tiflash']
+
+    # result = format_json(data, headers)
+    # print(result)

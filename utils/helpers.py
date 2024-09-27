@@ -10,6 +10,21 @@ import json
 logger = logger.setup_logger(__name__)
 
 
+def keep_same_headers(data, headers):
+    """
+    将 JSON 数据按照指定的 headers 方式排列。
+    
+    :param data: 输入的 JSON 数据，类型为列表。
+    :param headers: 指定的 headers，类型为列表。
+    :return: 格式化后的 JSON 数据，类型为字符串。
+    """
+    formatted_data = []
+    for item in data:
+        formatted_row = {header: item.get(header, "") for header in headers}
+        formatted_data.append(formatted_row)
+    
+    return formatted_data
+
 def convert_datetime(datetime_str):
     datetime_object = datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
     return datetime_object
