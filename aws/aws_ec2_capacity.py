@@ -19,5 +19,8 @@ ec2_resource_capacity = {
     'm5.2xlarge': {'CPU(core)': 8, 'Memory(byte)': 34359738368, 'NetworkIn Bandwidth(byte)': 671088640, 'NetworkOut Bandwidth(byte)': 671088640, 'Disk Bandwidth(byte)': 301989888, 'Disk IOPS': 4000},
     'm5.xlarge': {'CPU(core)': 4, 'Memory(byte)': 17179869184, 'NetworkIn Bandwidth(byte)': 671088640, 'NetworkOut Bandwidth(byte)': 671088640, 'Disk Bandwidth(byte)': 150994944, 'Disk IOPS': 3000},
     'm5.large': {'CPU(core)': 2, 'Memory(byte)': 8589934592, 'NetworkIn Bandwidth(byte)': 671088640, 'NetworkOut Bandwidth(byte)': 671088640, 'Disk Bandwidth(byte)': 131072000, 'Disk IOPS': 3000},
-    'c5.2xlarge': {'CPU(core)': 8, 'Memory(byte)': 34359738368, 'NetworkIn Bandwidth(byte)': 671088640, 'NetworkOut Bandwidth(byte)': 671088640, 'Disk Bandwidth(byte)': 301989888, 'Disk IOPS': 3000},
+    'c5.2xlarge': {'CPU(core)': 8, 'Memory(byte)': 17179869184, 'NetworkIn Bandwidth(byte)': 671088640, 'NetworkOut Bandwidth(byte)': 671088640, 'Disk Bandwidth(byte)': 301989888, 'Disk IOPS': 3000},
+    'c5.4xlarge': {'CPU(core)': 16, 'Memory(byte)': 34359738368, 'NetworkIn Bandwidth(byte)': 671088640, 'NetworkOut Bandwidth(byte)': 671088640, 'Disk Bandwidth(byte)': 131072000, 'Disk IOPS': 3000},
+    'c5.xlarge': {'CPU(core)': 4, 'Memory(byte)': 8589934592, 'NetworkIn Bandwidth(byte)': 671088640, 'NetworkOut Bandwidth(byte)': 671088640, 'Disk Bandwidth(byte)': 131072000, 'Disk IOPS': 3000},
+    
 }

@@ -14,20 +14,22 @@ import requests
 import utils
 import ai.ai
 
-def deduplicate_dict_list(original_list, key):
-    seen = set()
-    unique_list = []
+# def deduplicate_dict_list(original_list, key):
+#     seen = set()
+#     unique_list = []
     
-    for d in original_list:
-        value = d.get(key)
-        if value not in seen:
-            seen.add(value)
-            unique_list.append(d)
+#     for d in original_list:
+#         value = d.get(key)
+#         if value not in seen:
+#             seen.add(value)
+#             unique_list.append(d)
     
-    return unique_list
+#     return unique_list
 # def append_unique_data(data_set, new_data):
 #     if new_data not in data_set:
 #         data_set.add(new_data)
+
+
 
 if __name__ == '__main__':
     # conf = Configer("tidbcloud.yaml").set_conf()
@@ -36,25 +38,24 @@ if __name__ == '__main__':
     # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820'
     # print(conf['prometheus']['cluster_prom_id_token'])
 
-    # k8s
+    # k8s 
     # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/internal/metrics/d5d1a915-1d37-22a7-82b8-8cb67cc57820'
     # client = PrometheusConnect(url=url, disable_ssl=False,
-    #                                    headers=None)
+                                    #    headers=None)
+    # print(client.custom_query(query='(time() - process_start_time_seconds{component="tidb"})'))                                   
     # cloud
-    # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089193131282/project/1372813089206781474/application/1379661944646415465/api/v1/query'
-    # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089209061633/project/1372813089454538353/application/1379661944646415424'
-    # # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089209061633/project/1372813089454521730/application/1379661944646415455'
-    # token='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJEWTNNVUpGTUVReU9VVTBSa0U1TXpCRk5rRkRRVEl3UkRNMU0wSXpNelJHUVRrMVFUbEZRZyJ9.eyJodHRwczovL3RpZGJjbG91ZC5jb20vbGFzdF9wYXNzd29yZF9yZXNldCI6IjIwMjQtMDctMThUMTI6MjY6NTYuMjA1WiIsImh0dHBzOi8vdGlkYmNsb3VkLmNvbS9sb2dpbl9yZWNlaXZlZF9hdCI6MTcyMTg3ODM5NDM0OSwibG9naW5faGFzX29yZyI6IjEiLCJsb2dpbl9vcmdfdHlwZSI6InBlcnNvbmFsIiwibG9naW5fb3JnX2lkIjoiMSIsImxvZ2luX2NvbXBhbnlfbmFtZSI6IiIsImVtYWlsIjoieXVlY2hhbmdxaWFuZ0BwaW5nY2FwLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL3RpZGIuYXV0aDAuY29tLyIsImF1ZCI6IjZJWnRoQ2ZtUktJUEVuUVNUOGFEYnRNN1NHZE1uaVJsIiwiaWF0IjoxNzIxODc4Mzk0LCJleHAiOjE3MjE5MTQzOTQsInN1YiI6ImF1dGgwfDYxY2E3MzY4ZTk1Njc1MDA2ODJhZDE4MiIsImF0X2hhc2giOiJDcTBnVl90R2UzVFNaS3UyMk1fbUF3Iiwic2lkIjoidXpQNkdYR3g5dzB0a2FZWWlfdTRMZHdBcHV5SUZOcTAiLCJub25jZSI6Ikpwd3lmSUNYUkNlcEltTUJhT1J1Vkh4VkNheEd5b2xXIn0.gH91RnZ8lhHg06whxOOxuq8s5a79XebYnpR7DxB6VJbQl34gpHF5mfzzU_Z3LSGq5izz3E8PdSGtZZkdK1vlKwayQdjO-n99bw321PJIkGMfiff6Bi-deFaU4QBMby4W0VrEXZQ8HteQdbLQeo5okI4wTi8fZppBAfzzDfREryBpTANV6cTLFHIVfkuqhiQywGOCjCfEyWO_bDBYyF9OHLxB6yh4q-jg1cWvya1bmnRHVtzI6EToTRIgEVcbhm63UsfUGzEuBec_NMqVYl0ytcnYgRTeFoQza100qMowof0J56FltgAe9nBSkrJ3xTpURF5iXNUrCw4FYjajn0pk5w'
+    # url='https://www.ds.us-east-1.aws.observability.tidbcloud.com/external/metrics/tidbcloud/tenant/1372813089209061633/project/1372813089454521730/application/1379661944646413610'
+    # token='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJEWTNNVUpGTUVReU9VVTBSa0U1TXpCRk5rRkRRVEl3UkRNMU0wSXpNelJHUVRrMVFUbEZRZyJ9.eyJodHRwczovL3RpZGJjbG91ZC5jb20vbGFzdF9wYXNzd29yZF9yZXNldCI6IjIwMjQtMDctMThUMTI6MjY6NTYuMjA1WiIsImh0dHBzOi8vdGlkYmNsb3VkLmNvbS9sb2dpbl9yZWNlaXZlZF9hdCI6MTcyNTUzOTIzMzc1MCwibG9naW5faGFzX29yZyI6IjEiLCJsb2dpbl9vcmdfdHlwZSI6InBlcnNvbmFsIiwibG9naW5fb3JnX2lkIjoiMSIsImxvZ2luX2NvbXBhbnlfbmFtZSI6IiIsImVtYWlsIjoieXVlY2hhbmdxaWFuZ0BwaW5nY2FwLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL3RpZGIuYXV0aDAuY29tLyIsImF1ZCI6IjZJWnRoQ2ZtUktJUEVuUVNUOGFEYnRNN1NHZE1uaVJsIiwiaWF0IjoxNzI1NTM5MjMzLCJleHAiOjE3MjU1NzUyMzMsInN1YiI6ImF1dGgwfDYxY2E3MzY4ZTk1Njc1MDA2ODJhZDE4MiIsImF0X2hhc2giOiIwQ1FxNkdNMFB0ZmtLaC03ZG9TTW5RIiwic2lkIjoiQ1ZoX2RrbGw1c0RBV0dkbFlXUXZTUXZ3T25XUE5uSnYiLCJub25jZSI6IndEeWFUcmdzY1BTd3l0VU5LTVhDZUpHeUZOZXJ1TlBMIn0.O9IXssN9Si9VzKytOG-8-rnsKjxz4ClJ3FG6ct2fFPSTU1HqThAYC3fwF1OPIHPyqtYQYUEqFb7rtCj60zZRydT8mwRJ7jRv5LLbyq-oeA9emt1_HP-DPq4FY2DPO1KrFK4XuL8eadkhhtPozhkSt9-lE6KX_CrcEqrqByVfDTZHenrqziUtxmhCriQ_bgVB7Q2EyG3XnhUJIx3ebnidpOobpP6Y5m-CUzQ8AetVx1y1feET8uywsw7tEdRoytO7SJFmtlYxlNRor7dxkb1M3SKKZnYk-OoEISX2jG7L_u8WW6x8ZAaQTjEifrz5yllurzMeBjydXsEJ08onZRiPsQ'
     # client = PrometheusConnect(url=url, disable_ssl=False,
     #                                headers={"Authorization": "bearer {}".format(token)})
-    
+    # print(client.custom_query(query='kube_node_labels{tenant="1372813089209061633",label_cluster="1379661944646413610",label_component="tidb"}'))
     # current_time = datetime.datetime.now()
     # one_day_ago = current_time - datetime.timedelta(days=1)
-    # print(client.custom_query(query="all"))
+    # # print(client.custom_query(query="all"))
     # print(client.get_metric_aggregation(query="dbaas_tidb_cluster_info",
     #         start_time=one_day_ago, end_time=current_time, step=60,
     #         operations=["max"])
-    # # )
+    # )
 
     # token='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJEWTNNVUpGTUVReU9VVTBSa0U1TXpCRk5rRkRRVEl3UkRNMU0wSXpNelJHUVRrMVFUbEZRZyJ9.eyJodHRwczovL3RpZGJjbG91ZC5jb20vbGFzdF9wYXNzd29yZF9yZXNldCI6IjIwMjQtMDctMThUMTI6MjY6NTYuMjA1WiIsImh0dHBzOi8vdGlkYmNsb3VkLmNvbS9sb2dpbl9yZWNlaXZlZF9hdCI6MTcyMTgwMTkwMjQ2OCwibG9naW5faGFzX29yZyI6IjEiLCJsb2dpbl9vcmdfdHlwZSI6InBlcnNvbmFsIiwibG9naW5fb3JnX2lkIjoiMSIsImxvZ2luX2NvbXBhbnlfbmFtZSI6IiIsImVtYWlsIjoieXVlY2hhbmdxaWFuZ0BwaW5nY2FwLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL3RpZGIuYXV0aDAuY29tLyIsImF1ZCI6IjZJWnRoQ2ZtUktJUEVuUVNUOGFEYnRNN1NHZE1uaVJsIiwiaWF0IjoxNzIxODAxOTAyLCJleHAiOjE3MjE4Mzc5MDIsInN1YiI6ImF1dGgwfDYxY2E3MzY4ZTk1Njc1MDA2ODJhZDE4MiIsImF0X2hhc2giOiJydUJMMVlEa25FbldzSDFzTDZYblJnIiwic2lkIjoicWhUYTJHczN4Y0VxN2VYdk9pZWFqZC1zTk83T0hOQkEiLCJub25jZSI6Ik5VV3dla2dKaU5Hb0JoWHNXWWZRWHd3dWdHd2JTRnV1In0.z0YZQhfWjbZiGGW_rwHNsh73XxIZkHvnB4BUWGslAPeNnsboSfTaveFzY003gVLliObs8ag2KP5a9SjuEsDqImlLHkvLNp0WvATrY3_bOGxzphwiU1Y1xjB-m9qnPV9XV-ps2FXMEF5_U88En5JfCUycfnMw97hzGgLIj7169h6z-vMTEAygGonGtG3RXcFkME9Z2hngdvvtqhdIEFCRQWe_q79OEQdfpj_rfxUktUsGgfJ1961y0n6lfLed88d7oIYv8a1Q0q6Nc6330Cq1CUPOgdikjWgPdWseK9PnZw9bWxHKniciu6VhNBr2rm65zdVewX0T9sCcGVINcNBXJg'
     #        eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJEWTNNVUpGTUVReU9VVTBSa0U1TXpCRk5rRkRRVEl3UkRNMU0wSXpNelJHUVRrMVFUbEZRZyJ9
@@ -128,16 +129,22 @@ if __name__ == '__main__':
     
 
     # 原始列表，包含字典元素
-    original_list = [
-        {'key1': 'value1', 'key2': 'value2'},
-        {'key1': 'value3', 'key2': 'value2'},
-        {'key1': 'value1', 'key2': 'value2'}
-    ]
+    # original_list = [
+    #     {'key1': 'value1', 'key2': 'value2'},
+    #     {'key1': 'value3', 'key2': 'value2'},
+    #     {'key1': 'value1', 'key2': 'value2'}
+    # ]
 
-    # 指定要去重的键
-    key_to_check = 'key1'
+    # # 指定要去重的键
+    # key_to_check = 'key1'
 
-    # 调用函数进行按指定键去重操作
-    unique_list = deduplicate_dict_list(original_list, key_to_check)
+    # # 调用函数进行按指定键去重操作
+    # unique_list = deduplicate_dict_list(original_list, key_to_check)
 
-    print(unique_list)
+    # print(unique_list)
+    # data=[{'cluster_id': '10273184600749456107', 'cluster_name': 'prod-seamless-jili', 'version': 'v7.5.3', 'PD 节点数': '3', 'TiDB 节点数': '16', 'TiKV 节点数': '39', 'TiFlash 节点数': 0, 'Total QPS(MAX)': {'max': 168034.00833333333}, '实际数据存储量(byte)': {'max': 76868039144706.0}, '组件tidb': '实例类型:c6g.4xlarge  CPU(core):16  Memory(byte):34359738368  ', '组件pd': '实例类型:c6g.4xlarge  CPU(core):16  Memory(byte):34359738368  ', '组件tikv': '实例类型:m6g.8xlarge  CPU(core):32  Memory(byte):137438953472  '}]
+
+    # headers=['cluster_id', 'cluster_name', 'version', 'PD 节点数', 'TiDB 节点数', 'TiKV 节点数', 'TiFlash 节点数', 'Total QPS(MAX)', '实际数据存储量(byte)', '组件tikv', '组件tidb', '组件pd', '组件tiflash']
+
+    # result = format_json(data, headers)
+    # print(result)

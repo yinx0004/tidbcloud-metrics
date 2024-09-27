@@ -96,7 +96,7 @@ class Configer:
                 'prometheus']['step_in_seconds']
         
         self.get_token_from_tidbcloudapi()
-        # print(self.conf['prometheus']['cluster_prom_id_token'])
+        print(self.conf['prometheus']['cluster_prom_id_token'])
         # self.conf['prometheus']['cluster_prom_id_token'] = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJEWTNNVUpGTUVReU9VVTBSa0U1TXpCRk5rRkRRVEl3UkRNMU0wSXpNelJHUVRrMVFUbEZRZyJ9.eyJodHRwczovL3RpZGJjbG91ZC5jb20vbGFzdF9wYXNzd29yZF9yZXNldCI6IjIwMjQtMDctMThUMTI6MjY6NTYuMjA1WiIsImh0dHBzOi8vdGlkYmNsb3VkLmNvbS9sb2dpbl9yZWNlaXZlZF9hdCI6MTcyMjI0OTkzMDQ0NSwibG9naW5faGFzX29yZyI6IjEiLCJsb2dpbl9vcmdfdHlwZSI6InBlcnNvbmFsIiwibG9naW5fb3JnX2lkIjoiMSIsImxvZ2luX2NvbXBhbnlfbmFtZSI6IiIsImVtYWlsIjoieXVlY2hhbmdxaWFuZ0BwaW5nY2FwLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL3RpZGIuYXV0aDAuY29tLyIsImF1ZCI6IjZJWnRoQ2ZtUktJUEVuUVNUOGFEYnRNN1NHZE1uaVJsIiwiaWF0IjoxNzIyMjQ5OTMwLCJleHAiOjE3MjIyODU5MzAsInN1YiI6ImF1dGgwfDYxY2E3MzY4ZTk1Njc1MDA2ODJhZDE4MiIsImF0X2hhc2giOiJFc1pBQlI3SmhXQ01GMXczckg4b1pBIiwic2lkIjoiX3QtX3F2bFJRTUZZM0xaWHVlb1hEXzQ3N3FQWl90MUkiLCJub25jZSI6ImZoRkdsS1BqRFNWWW94WVdLR0VHQnd2VWtpd0ZXWXVRIn0.OKhnKtxk9SOC0ramehRb_BnRKUWrzB4cYrwZid3uv9yWaCph7gMA7iIufT0G-5HCAF5tOQCMKNIviczssvAEGOqC5qLu0dCBpIN4swaQpp6g4uTSo2lUlkI_9Ed9QTlCfKvsqH7apG4OGYMYK0s3XP7KRaPTmT5Azv6dl-7Y9u-RqOdzpvRcbo7DkT8CnFPNDTzPiuocPAFZ-DQei-QLfTZSU12hBw1D4wCuazxv29qL32rBEDeGyjFFQwPhJ5R3WhKlgyX-Aj0sE7L453ZQgWzL7OPKvieqE1WI-wCO2PuwOAuGw-8GaW7R5cMT-X5KRd4B134FI4rEKmxj_w9vGA'
         return self.conf
 
