@@ -12,7 +12,7 @@ class CapacityPlanner(TiDBCluster):
     def __init__(self, conf):
         super().__init__(conf)
         self.logger = logger.setup_logger(__name__, self.conf['logging']['file_name'], self.conf['logging']['level'])
-        self.csv_file_name = "data/{}_capacity_plan_{}.csv".format(self.conf['cluster_info']['cluster_id'], self.conf['time'])
+        self.csv_file_name = "data/{}_capacity_plan_watermark{}_{}.csv".format(self.conf['cluster_info']['cluster_id'], self.conf['capacity']['plan_resource_redundancy_x'],self.conf['time'])
         self.csv_file_fields = ['component', 'name', 'max', 'average', 'percentile_50.0', 'percentile_75.0', "percentile_80.0",
                        "percentile_85.0", "percentile_90.0", "percentile_95.0", 'percentile_99.0', 'percentile_99.9',
                        'capacity', 'instance_cnt', 'plan_max', 'plan_average', 'plan_percentile_50.0',
@@ -95,7 +95,7 @@ class CapacityPlanner(TiDBCluster):
             usage_metrics = self.cloud_prom_client.get_resource_usage_metrics(request)
             self.logger.debug(usage_metrics)
             self.logger.info("{} {}: Retrieving resource capacity".format(request['component'], request['name']))
-            capacity, instance_cnt = self.cloud_prom_client.get_capacity_n_count(request)
+            capacity, instance_cnt = self.cloud_prom_client.get_capacity_n_count_range(request)
             analyzer = MetricsAnalyzer(request, usage_metrics, capacity, instance_cnt, self.conf)
             self.logger.info("{} {}: Analyzing capacity plan".format(request['component'], request['name']))
             data = analyzer.analyze()
@@ -127,7 +127,7 @@ class CapacityPlanner(TiDBCluster):
                 tidb_requests += req
 
         k8s_prom_instance_request = tidb_requests + [
-            #{'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},
+            # {'component': 'tidb', 'query': k8s_instance_query.tidb_instance_query},
             {'component': 'tikv', 'query': k8s_instance_query.tikv_instance_query},
             {'component': 'tiflash', 'query': k8s_instance_query.tiflash_instance_query},
             {'component': 'pd', 'query': k8s_instance_query.pd_instance_query},
@@ -141,13 +141,14 @@ class CapacityPlanner(TiDBCluster):
             self.logger.info("Retrieving {} instances information".format(request['component']))
             self.logger.debug("query: {}".format(request['query']))
             #instances_info = client.get_metrics(request['query'])
-            instances_info = self.k8s_prom_client.get_vector_result_raw(request['query'])
+            instances_info = self.k8s_prom_client.get_vector_result_raw_range(request['query'])
             #instances_info = client.get_vector_metrics_many(request['query'])
             self.logger.debug("instance_info {}".format(instances_info))
 
             instances = []
             instance_type_list = []
 
+            # if len(instances_info) > 0 and len(instances_info) < 130:
             if len(instances_info) > 0:
                 for instance in instances_info:
                     instance_name = instance['metric']['label_kubernetes_io_hostname']
@@ -155,8 +156,11 @@ class CapacityPlanner(TiDBCluster):
                     self.logger.debug("instance name:{}, instance_type: {}".format(instance_name, instance_type))
                     instances.append(instance_name)
                     instance_type_list.append(instance_type)
-
-                instance_filter = '|'.join(instances)
+                # instance_filter = '|'.join(instances)
+                # 如果实例数量超过 119 个，只取前 119 个用于拼接
+                limited_instances = instances[:119]
+                # limited_instances = instances
+                instance_filter = '|'.join(limited_instances)
                 self.logger.debug("instance_filter {}".format(instance_filter))
 
                 metricx_query = K8sPromQueryBatchInstanceMetrics(self.conf['cluster_info'], instance_filter)
@@ -211,4 +215,3 @@ class CapacityPlanner(TiDBCluster):
             self.logger.info("Completed. Please find the capacity plan in {}".format(self.csv_file_name))
         else:
             self.logger.info("No capacity plan generated.")
-

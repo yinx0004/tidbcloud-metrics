@@ -6,7 +6,7 @@ class AI:
     def __init__(self):
         self.post_url = "https://linguflow.pingcap.net/linguflow-api/applications/55efc784-160e-49fd-afa5-f91b80eee96f/async_run?application_id=55efc784-160e-49fd-afa5-f91b80eee96f"
         self.get_url = "https://linguflow.pingcap.net/linguflow-api"
-        self.timeout = 100
+        self.timeout = 150
 
     def post_request(self,request_input):
 
@@ -28,5 +28,5 @@ class AI:
                 output = response.json().get('interaction').get('output')
                 if output is not None:
                     return utils.helpers.formatOutput(output)
-            time.sleep(2)  # 等待1秒后重试
+            time.sleep(10)  # 等待10秒后重试
         raise ValueError("Error: Timeout reached. Unable to fetch data within {}s. response is {}".format(self.timeout,response.json()))

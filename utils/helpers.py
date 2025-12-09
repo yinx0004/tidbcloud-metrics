@@ -6,14 +6,103 @@ import random
 import string
 import re
 import json
+import os
 
 logger = logger.setup_logger(__name__)
 
 
+def keep_same_headers(data, headers):
+    """
+    将 JSON 数据按照指定的 headers 方式排列。
+    
+    :param data: 输入的 JSON 数据，类型为列表。
+    :param headers: 指定的 headers，类型为列表。
+    :return: 格式化后的 JSON 数据，类型为字符串。
+    """
+    formatted_data = []
+    for item in data:
+        formatted_row = {header: item.get(header, "") for header in headers}
+        formatted_data.append(formatted_row)
+    
+    return formatted_data
+
 def convert_datetime(datetime_str):
-    datetime_object = datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
+    # datetime_object = datetime.strptime(datetime_str, '%d/%m/%Y %H:%M:%S')
+    datetime_object = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
     return datetime_object
 
+def save_dict_to_csv(data, filename,folder="data",format="row"):
+    """
+    将字典数据保存到 CSV 文件，文件名包含当前时间，存储到指定文件夹。
+
+    参数：
+        data (dict): 需要写入 CSV 的字典数据。
+        folder (str): 存放 CSV 文件的目录，默认是 "data"。
+    返回：
+        str: 生成的 CSV 文件路径。
+    """
+    # 确保字典非空
+    if not data:
+        raise ValueError("数据为空，无法写入 CSV！")
+
+    # 获取字段顺序（按照字典的 key 顺序）
+    fields = list(data.keys())
+
+    # 获取当前时间戳作为文件名
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # 生成相对路径
+    os.makedirs(folder, exist_ok=True)  # 确保目录存在
+    file_path = os.path.join(folder, f"{filename}_{timestamp}.csv")
+
+    if format == "row":
+        # 写入 CSV 文件
+        with open(file_path, mode="w", newline="", encoding="utf-8") as file:
+            writer = csv.DictWriter(file, fieldnames=fields)
+            writer.writeheader()  # 写入标题
+            writer.writerow(data)  # 写入内容
+        print(f"✅ CSV 文件已生成：{file_path}")
+    elif format == "column":
+        print(f"column 还未实现")
+    else:
+        raise ValueError("Invalid format. Please use 'row' or 'column'.")
+    
+def save_list_to_csv(data, filename,folder="data",format="row"):
+    """
+    将字典数据保存到 CSV 文件，文件名包含当前时间，存储到指定文件夹。
+
+    参数：
+        data (list): 需要写入 CSV 的数据。
+        folder (str): 存放 CSV 文件的目录，默认是 "data"。
+    返回：
+        str: 生成的 CSV 文件路径。
+    """
+    # 确保字典非空
+    if not data:
+        raise ValueError("数据为空，无法写入 CSV！")
+
+    # 获取字段顺序（按照字典的 key 顺序）
+    fields = list(data[0].keys())
+
+    # 获取当前时间戳作为文件名
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # 生成相对路径
+    os.makedirs(folder, exist_ok=True)  # 确保目录存在
+    file_path = os.path.join(folder, f"{filename}_{timestamp}.csv")
+
+    if format == "row":
+        # 写入 CSV 文件
+        with open(file_path, mode="w", newline="", encoding="utf-8") as file:
+            writer = csv.DictWriter(file, fieldnames=fields)
+            writer.writeheader()  # 写入标题
+            writer.writerows(data)  # 写入内容
+        print(f"✅ CSV 文件已生成：{file_path}")
+    elif format == "column":
+        print(f"column 还未实现")
+    else:
+        raise ValueError("Invalid format. Please use 'row' or 'column'.")
+    
 
 def write_to_csv(dict_var, fields, file_name):
     with open(file_name, "w") as f:

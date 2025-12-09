@@ -1,0 +1,24 @@
+{
+    "launch": {
+        "configurations": [
+
+        ]
+    },
+    "python.terminal.executeInFileDir": true,
+    "python.defaultInterpreterPath": "/opt/homebrew/bin/python3.8",
+    "python.analysis.autoFormatStrings": true,
+    "editor.defaultFormatter": "ms-python.vscode-pylance",
+    "git.enableSmartCommit": true,
+    "git.path": "/usr/bin/git",
+    "git.autofetch": true,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "explorer.confirmDelete": false,
+    "python.languageServer": "Pylance",
+    "javascript.preferGoToSourceDefinition": true,
+    "typescript.preferGoToSourceDefinition": true,
+    "editor.definitionLinkOpensInPeek": true,
+    "python.experiments.optInto": [],
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
+}
